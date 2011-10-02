@@ -15,21 +15,10 @@
 ;*
 	.include "asminc/m88def.inc"
 
-
 ;defino constantes
 
 ; Por ahora incluidas en los respectivos archivos de include.
 
-
-;defino simbolos
-	.def	tmp		=	r16
-	.def	arg		=	r17		;*	argument for calling subroutines
-	.def	rtn		=	r18		;*	return value from subroutines
-	.def    dta		=	r19		;*	el q le da el master
-	.def	tmt		=	r20
-	.def	rcv		=	r21
-	.def	usd		=	r22
-	.def	con		=	r23
 
 ;defino macros
 	.MACRO	SPI_START;*	Elijo el SLAVE con ~SS (PortB,2) en LOW
@@ -112,7 +101,7 @@ SlaveSensorInit:
 
 PutSensorData:
 		;* cargo un contador para los 5 datos
-		ldi 	con,5
+		ldi 	delay,5
 start:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
@@ -124,7 +113,7 @@ start:
 		rcall	LCD_Wait
 
 		;* Decremento el contador
-		dec 	con
+		dec 	delay
 		brne 	start
 		ret
 
