@@ -14,7 +14,7 @@
 ;*
 ;*
 	.include "asminc/m88def.inc"
-
+	.include "asminc/regs_alias.inc"
 ;defino constantes
 
 ; Por ahora incluidas en los respectivos archivos de include.

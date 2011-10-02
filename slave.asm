@@ -15,6 +15,8 @@
 ;*
 
 	.include "asminc/m88def.inc"
+	.include "asminc/regs_alias.inc"
+
 ;defino constantes
 
 ; Por ahora incluidas en los respectivos archivos de include.
@@ -89,7 +91,7 @@ jm:
 
 	.include "asminc/spi_slave.inc"
 	.include "asminc/usart_slave.inc"
-	.include "asminc/common.inc"
+	;.include "asminc/common.inc"
 
 
 SENSOR_Init1:
