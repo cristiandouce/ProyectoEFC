@@ -1,7 +1,7 @@
 ;*****************************************************************
-;*	File: usart_slave.inc
+;*	File: macros_master.inc
 ;*	
-;*	Rutinas de control de USART en modo SLAVE
+;*	Macros para el microcontrolador en modo MASTER
 ;*	
 ;*	Autores:
 ;*			- Rodriguez Cañete, Macarena
