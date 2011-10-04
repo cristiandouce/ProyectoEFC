@@ -8,3 +8,6 @@ slave: slave.asm
 
 clean:
 	rm *.hex *.cof *.HEX *.LST *.obj *.SDI
+
+clean_win:
+	rm \*.hex \*.cof \*.HEX \*.LST \*.obj \*.SDI

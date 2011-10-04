@@ -41,11 +41,10 @@ RESET:
 ;*	MAIN Program for microcontroller
 ;*****************************************************************
 MAIN:
-		
-		;*	Habilito el LCD
+		;* Habilito el LCD
 		rcall	LCD_init
 
-		;*Inicio el SPI como Master
+		;* Inicio el SPI como Master
 		rcall 	SPI_Minit
 		
 		;* Ordeno el inicio del sensor
@@ -54,7 +53,8 @@ MAIN:
 		;* Busco los datos de la lectura
 		rcall 	PutSensorData
 
-FIN_P:	rjmp 	FIN_P
+FIN_P:
+		rjmp 	FIN_P
 
 
 SlaveSensorInit:
