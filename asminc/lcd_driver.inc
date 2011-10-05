@@ -71,74 +71,65 @@ LCD_init:	sbi		DDRC,LCD_RS
 ;*	Comando de 8 bits para pasar a modo 4 bits
 ;*	Usado solo en inicialización del LCD
 ;*****************************************************************
-LCD_cmd8b:	in		tmp, DDRD			;we need to set the high nibble of DDRD while leaving
-		
-			;the other bits untouched. Using tmp for that.
-			;set high nibble in tmp
-			sbr		tmp, 0b11110000
-			out		DDRD, tmp			;write value to DDRD again-> d7-d4 son salidas
-			in		tmp, PortD			;then get the port value, aparentemente portd esta en cero x defecto
-			cbr		tmp, 0b11110000		;borro the data bits 
-			cbr		arg, 0b00001111		;then clear the low nibble of the argument
-										;so that no control line bits are overwritten
-			or		tmp, arg			;then set the data bits (from the argument) in the
-										;Port value
-										;*en argument tengo el argumento con el nibble d las variables d control en cero
-										;*en tmp tngo los valores dl puerto d, con la parte d datos borrada
-			out		PortD, tmp			;and write the port value.
-			sbi		PortD, LCD_E		;now strobe E
+LCD_cmd8b:	in	tmp, DDRD		;seteamos el nibble alto de DDRD sin tocar nada mas
+			sbr	tmp, 0b11110000	;seteo nibble alto en temp
+			out	DDRD, tmp		;reemplazo DDRD
+			in	tmp, PortD		;recupero el valor del puerto
+			cbr	tmp, 0b11110000	;seteo los bits de datos
+			cbr	arg, 0b00001111	;y borro el nibble bajo del argumento para no sobreescribir los bits de control
+			or	tmp, arg		
+			out	PortD, tmp		;y escribo en el puerto.
+			sbi	PortD, LCD_E		;hago un pulso en E
 			nop
 			nop
 			nop
-			cbi		PortD, LCD_E
-			in		tmp, DDRD			;get DDRD to make the data lines input again
-			cbr		tmp, 0b11110000		;clear data line direction bits
-			out		DDRD, tmp			;and write to DDRD
+			cbi	PortD, LCD_E
+			in	tmp, DDRD		;vuelvo a dejar el DDRD con los bits de datos en entrada
+			cbr	tmp, 0b11110000
+			out	DDRD, tmp		
 			ret
-
+			
 ;*****************************************************************
 ;*	"LCD_putc"
 ;*	Comando de 4 bits para pasar caracter
 ;*****************************************************************
-LCD_putc:	push 	arg 				;save the argmuent (it's destroyed in between)
-			in		tmp, DDRD			;get data direction bits
-			sbr		tmp, 0b11110000		;set the data lines to output
-			out		DDRD, tmp			;write value to DDRD
-			in		tmp, PortD			;then get the data from PortD
-			cbr		tmp, 0b11111110		;clear ALL LCD lines (data and control!)
-			cbr		arg, 0b00001111		;we have to write the high nibble of our argument first
-										;so mask off the low nibble
-			or		tmp, arg			;now set the argument bits in the Port value
-			out		PortD, tmp			;and write the port value
-			sbi		PortC, LCD_RS		;now take RS high for LCD char data register access
-			sbi		PortD, LCD_E		;strobe Enable
+LCD_putc:	push 	arg 				;guardo el argumento
+			in		tmp, DDRD			;guardo los bits de address de datos
+			sbr		tmp, 0b11110000		;seteo los bits de datos en salida
+			out		DDRD, tmp			
+			in		tmp, PortD			;recupero los datos de PortD
+			cbr		tmp, 0b11111110		;borro todas las lineas de LCD
+			cbr		arg, 0b00001111		;escondo el nibble bajo del argumento
+			or		tmp, arg			;seteo los bits del argumento en temp
+			out		PortD, tmp			;y escribo el valor del puerto
+			sbi		PortC, LCD_RS		;seteo RS
+			sbi		PortD, LCD_E		;hago un pulso en E
 			nop
 			nop
 			nop
 			cbi		PortD, LCD_E
-			pop		arg					;restore the argument, we need the low nibble now...
-			cbr		tmp, 0b11110000		;clear the data bits of our port value
-			swap	arg					;we want to write the LOW nibble of the argument to
-										;the LCD data lines, which are the HIGH port nibble!
-			cbr		arg, 0b00001111		;clear unused bits in argument
-			or		tmp, arg			;and set the required argument bits in the port value
-			out		PortD, tmp			;write data to port
-			sbi		PortC, LCD_RS		;again, set RS
-			sbi		PortD, LCD_E		;strobe Enable
+			pop		arg					;recupero el argumento para usar el nibble bajo
+			cbr		tmp, 0b11110000		;borro los bits de address de datos
+			swap	arg					;swapeo para poner el bit bajo en el alto
+			cbr		arg, 0b00001111		;borro los bits no usados en el argumento
+			or		tmp, arg			;y los seteo en el puerto
+			out		PortD, tmp			
+			sbi		PortC, LCD_RS		;vuelvo a setear RS
+			sbi		PortD, LCD_E		;y poner un pulso en E
 			nop
 			nop
 			nop
 			cbi		PortD, LCD_E
 			cbi		PortC, LCD_RS
 			in		tmp, DDRD
-			cbr		tmp, 0b11110000		;data lines are input again
+			cbr		tmp, 0b11110000		;las lineas de datos vuelven a ser salida
 			out		DDRD, tmp
 			ret
 
 ;*****************************************************************
 ;*	"LCD_putc"
 ;*	Comando de 4 bits para mandar instrucción al LCD
-;*	Same as LCD_putc, but with RS low!
+;*	mismo que LCD_putchar, pero con RS bajo
 ;*****************************************************************
 LCD_cmd4b:	push	arg					;guardo la instruccion
 			in		tmp, DDRD			;copio en tmp 00001110
@@ -173,10 +164,10 @@ LCD_cmd4b:	push	arg					;guardo la instruccion
 ;*****************************************************************
 ;*	"LCD_geta"
 ;*	Obtiene la dirección de memoria del LCD
-;*	works just like LCD_getchar, but with RS low, return.7 is the busy flag
+;*	funciona como LCD_getchar, pero con RS en 0, rtn.7 es la flag busy
 ;*****************************************************************
 LCD_geta:	in		tmp, DDRD
-			andi 	tmp, 0b00001111		;esto es al pedo
+			andi 	tmp, 0b00001111		
 			out		DDRD, tmp
 			cbi		PortC, LCD_RS		;pongo en cero para decir q es instruccion
 			sbi		PortD, LCD_RW		; en uno para leer
