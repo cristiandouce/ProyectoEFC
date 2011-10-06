@@ -57,5 +57,6 @@ SPI_STC:
 		breq SENSOR_Init1;y voy a hacer la rutina dl sensor
 		cpi dta,'d'
 		breq SENSOR_Data
+		
 return_interrupt:
 		reti

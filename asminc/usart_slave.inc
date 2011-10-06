@@ -78,5 +78,5 @@ USART_Receive:
 	sbrs r17,RXC0
 	rjmp USART_Receive
 ; Get and return received data from buffer
-	lds pixel, UDR0
+	lds aux, UDR0
 	ret

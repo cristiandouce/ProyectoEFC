@@ -32,8 +32,8 @@
 	.ENDMACRO
 
 	.MACRO	SendInstruction
-		;* Cargo la instruccion a enviar en 'tmt'
-		ldi tmt,@0
+		;* Cargo la instruccion a enviar en 'tmp'
+		ldi tmp,@0
 
 		;Transmito instruccion y espero
 		SPI_START
@@ -42,7 +42,7 @@
 		SPI_STOP
 
 		;* Cargo NULL para no afectar Slave
-		ldi tmt,0
+		ldi tmp,0
 
 		;* Transmito, espero y Recibo del buffer
 		SPI_START
@@ -50,4 +50,33 @@
 		rcall SPI_Wait
 		rcall SPI_Mreceive
 		SPI_STOP
+	.ENDMACRO
+
+	.MACRO	LoadstringZ 		;*	Cargo string en Z
+		ldi		Zh,high(@0<<1)
+		ldi		Zl,low(@0<<1)
+	.ENDMACRO
+
+	.MACRO	ubicar
+		push	tmp
+		mov		tmp,fla
+		cbr		tmp,@1
+		sbr		tmp,@0
+		mov		fla,tmp
+		pop		tmp
+	.ENDMACRO
+
+	.MACRO	SetLcdClearAtHome
+		ldi		arg,lcdclear
+		rcall	lcd_cmd4b
+		rcall	LCD_wait	
+		ldi		arg,lcdhome
+		rcall	lcd_cmd4b
+		rcall	LCD_wait
+	.ENDMACRO
+	
+	.MACRO	Secondline
+		ldi		arg,sline
+		rcall	LCD_cmd4b
+		rcall	LCD_wait
 	.ENDMACRO

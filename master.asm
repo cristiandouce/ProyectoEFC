@@ -47,16 +47,17 @@ MAIN:
 		;* Inicio el SPI como Master
 		rcall 	SPI_Minit
 		
-		;* Ordeno el inicio del sensor
-		rcall 	SlaveSensorInit
-	
-		;* Busco los datos de la lectura
-		rcall 	PutSensorData
+		;* Ordeno el inicio del Menu
+		rcall	MENU_init
+
+		;* Meto todo el codigo de jmps del menu.
+	.include "asminc/menu_flow.inc"
 
 FIN_P:
 		rjmp 	FIN_P
 
-
+;* esto hay que meterlo en otro inc, asi como todo el
+;* codigo opciones del menu y manejarlo con includes
 SlaveSensorInit:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 's'
@@ -74,7 +75,7 @@ start:
 		SendInstruction 'd'
 		
 		;* Cargo el dato en argumento para llevar al lcd
-		mov		arg,rcv
+		mov		arg,tmp
 		rcall	LCD_putc
 		rcall	LCD_Wait
 
@@ -83,7 +84,8 @@ start:
 		brne 	start
 		ret
 
+	.include "asminc/common.inc"
 	.include "asminc/spi_master.inc"
 	.include "asminc/lcd_driver.inc"
-	.include "asminc/common.inc"
+	.include "asminc/menu.inc"
 	

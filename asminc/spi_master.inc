@@ -49,23 +49,22 @@ SPI_Minit:
 
 
 ;*****************************************************************
-;*	Transmisión de 'tmt' por SPI al SLAVE
+;*	Transmisión de 'tmp' por SPI al SLAVE
 ;*****************************************************************
 SPI_Mtransmit:
-		out		SPDR, tmt
+		out		SPDR, tmp
 		ret
 ;*****************************************************************
-;*	Recepcion de 'rcv' por SPI del SLAVE
+;*	Recepcion de 'tmp' por SPI del SLAVE
 ;*****************************************************************
 SPI_Mreceive:
-		in		rcv, SPDR
+		in		tmp, SPDR
 		ret
 
 ;*****************************************************************
 ;*	Espera del fin de la recepción SPI por Slave
 ;*****************************************************************
 SPI_Wait:
-		;*	Espera del fin de la recepción
 		in 		tmp, SPSR
 		sbrs 	tmp, SPIF
 		rjmp 	SPI_Wait

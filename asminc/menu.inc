@@ -45,6 +45,9 @@
 	.equ	switchUP	= 	2
 	.equ	switchDW	= 	3
 	.equ	switchRT	= 	4
+;-Cadenas de caracteres
+	.equ	fst			=	0 			;fin de string en NULL character
+
 ;*****************************************************************
 ;*	VARIABLES
 ;*****************************************************************
@@ -68,4 +71,64 @@
 			strExp:		.db	"Exportar a PC? ",fst
 			strDone:	.db	"Listo",fst
 			strError:	.db	"Error!!",fst
-			
+
+
+;*****************************************************************
+;*****************************************************************
+;*				Rutinas para trabajar con el MENU
+;*****************************************************************
+;*****************************************************************
+
+MENU_init:
+		;*inicializo Flags
+		;ldi fla,0x00
+		;seteo los switches como entrada con pull up on
+		cbi		DDRC,switchUP
+		cbi		DDRC,switchDW
+		cbi		DDRC,switchRT
+		sbi		PORTC,switchUP
+		sbi		PORTC,switchDW
+		sbi		PORTC,switchRT
+		;seteo pin lampara como salida en 0
+		sbi		DDRC,lamp
+		cbi		PORTC,lamp
+		ret
+
+
+initiatedisplaycal1:
+		SetLcdClearAtHome
+		LoadstringZ strLmd
+		rcall	LCD_Putstring
+		Secondline
+		ret
+
+loadlmpoff:
+		LoadstringZ strLmpOff
+		ret
+		
+loadlmpon:
+		LoadstringZ strLmpOn
+		ret
+	
+LCD_Putstring:
+		lpm	arg,Z+
+psloop:	
+		rcall lcd_putc
+		;adiw Zh:Zl,1
+		lpm	arg,Z+
+		cpi	arg,fst
+		brne psloop
+		ret
+
+BCDtoLCD:
+		ldi	tmp,0x30
+		add	arg,tmp
+		rcall	lcd_putc
+		ret
+		
+		
+
+error:
+		SetLcdClearAtHome
+		LoadstringZ strError
+		rcall	LCD_Putstring

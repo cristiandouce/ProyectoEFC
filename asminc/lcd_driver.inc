@@ -24,6 +24,10 @@
 	.equ	LCD_RW	= 2
 	.equ	LCD_E	= 3
 
+	.equ	sline		=	0xC0
+	.equ	lcdclear	=	0x01
+	.equ	lcdhome		=	0x02
+
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con el LCD
@@ -56,7 +60,7 @@ LCD_init:	sbi		DDRC,LCD_RS
 			rcall	LCD_wait
 			
 				
-			ldi		arg, 0x01			;* Borro display, cursor -> home
+			ldi		arg, lcdclear			;* Borro display, cursor -> home
 			rcall	LCD_cmd4b
 			rcall	LCD_wait
 

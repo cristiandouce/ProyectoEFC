@@ -137,7 +137,7 @@ sensor:
 ;mejorar esta parte
 recibir:
 		rcall USART_Receive
-	    st X+,pixel;guardo el pixel en la variable var
+	    st X+,aux;guardo el pixel en la variable aux
 	    dec tmp
 	    brne recibir
 
