@@ -14,9 +14,10 @@
 ;*
 ;*
 	.include "asminc/m88def.inc"
+	.include "asminc/menudef.inc"
 	.include "asminc/regs_alias.inc"
 	.include "asminc/macros_master.inc"	
-
+		
 	.dseg
 		var:	.byte	6
 
@@ -45,7 +46,7 @@ MAIN:
 		rcall	LCD_init
 
 		;* Inicio el SPI como Master
-		rcall 	SPI_Minit
+		;rcall 	SPI_Minit
 		
 		;* Ordeno el inicio del Menu
 		rcall	MENU_init

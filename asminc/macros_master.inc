@@ -56,16 +56,7 @@
 		ldi		Zh,high(@0<<1)
 		ldi		Zl,low(@0<<1)
 	.ENDMACRO
-
-	.MACRO	ubicar
-		push	tmp
-		mov		tmp,fla
-		cbr		tmp,@1
-		sbr		tmp,@0
-		mov		fla,tmp
-		pop		tmp
-	.ENDMACRO
-
+	
 	.MACRO	SetLcdClearAtHome
 		ldi		arg,lcdclear
 		rcall	lcd_cmd4b
@@ -75,8 +66,20 @@
 		rcall	LCD_wait
 	.ENDMACRO
 	
+	.MACRO	LoadWord
+		lpm		wrdh,Z+
+		lpm		wrdl,Z+
+		movw	Zh:Zl,wrdh:wrdl
+	.ENDMACRO
+
 	.MACRO	Secondline
 		ldi		arg,sline
 		rcall	LCD_cmd4b
 		rcall	LCD_wait
 	.ENDMACRO
+
+;el siguiente macro tiene que ser de 1 sola linea
+	.MACRO	MoveZTo 
+		adiw	ZH:ZL,@0
+	.ENDMACRO
+	
