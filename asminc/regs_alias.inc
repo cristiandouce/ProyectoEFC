@@ -20,19 +20,18 @@
 ;*****************************************************************
 ;*	ALIAS DE REGISTROS
 ;*****************************************************************
+
 	
-	.def 	rd1l 	=	 r0 		; numero de 16 bit a dividir -low
-	.def 	rd1h 	=	 r1 		; numero de 16 bit a dividir -low
-	.def 	rd1u 	=	 r2 		; registro extra para division
-	.def 	rd2 	=	 r3 		; numero de 8-bit para dividir
-	.def 	rel 	=	 r4 		; resultado division
-	.def 	reh 	=	 r5 		; resultado division
+	.def	rBin1L	=	 r6
+	.def	rBin1H	=	 r7
+	.def	rBin2L	=	 r4
+	.def	rBin2H	=	 r5
 	.def	zero	=	 r8		
 	.def	id 		=	 r9 		;Id posicion menu
 	.def	wrdl	=	 r10
 	.def	wrdh 	=	 r11
-	.def	lambdaH	=	 r12
-	.def	lambdaL	=	 r13
+	.def	lambdaL	=	 r12
+	.def	lambdaH	=	 r13
 	.def	tmp		=	 r16		;* Registro para uso general
 	.def	arg		=	 r17		;* Argumentos para pasar a funciones
 	.def	rtn		=	 r18		;valor de retorno de subrutinas

@@ -28,6 +28,9 @@
 
 MENU_init:
 		;*inicializo Flags
+		ldi 	Yh,0x00
+		ldi 	Yl,0x01
+		ldi tmp,1
 		ldi key,0xff
 		ldi fla,0x00
 		;seteo posición inicial del menu
@@ -56,13 +59,6 @@ initiatedisplaycal1:
 		Secondline
 		ret
 
-loadlmpoff:
-		;LoadstringZ strLmpOff
-		ret
-		
-loadlmpon:
-		;LoadstringZ strLmpOn
-		ret
 	
 LCD_Putstring:
 		;mov aux,chq
@@ -74,6 +70,20 @@ psloop:
 		;cpi aux,0
 		cpi arg,fst
 		brne psloop
+		ret
+
+LCD_PutAscii:
+		ld	arg,Z+
+		ld	arg,Z+
+		ldi tmp,3
+		ld	arg,Z+
+paloop:	
+		rcall lcd_putc
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		;cpi arg,fst
+		brne paloop
 		ret
 
 BCDtoLCD:

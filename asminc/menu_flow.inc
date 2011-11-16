@@ -100,6 +100,7 @@ lLamp:
 
 check_keys:
 		;reseteo las flags de las keys
+		rcall delayX
 		cbr		fla,maskRESET
 		;leo el puerto C
 		in		tmp,PINC
@@ -118,26 +119,25 @@ check_keys:
 		sbr		key,maskRT
 		;si no se presiono nada me vuelvo a fijar
 		;luego de esperar por posibles rebotes
-		rcall delay200ms
-
+		
 		rjmp	check_keys
 		
 keyUP:
 		;se presiono key UP si no estába presionada antes seteo el flag y voy al mainloop, si si vuelvo
-		sbrs	key,switchUP
-		rjmp	check_keys
+		;sbrs	key,switchUP
+		;rjmp	check_keys
 		cbr		key,maskUP
 		sbr		fla,maskUP
 		rjmp	PressUp
 keyDW:
-		sbrs	key,switchDW
-		rjmp	check_keys
+		;sbrs	key,switchDW
+		;rjmp	check_keys
 		cbr		key,maskDW
 		sbr		fla,maskDW
 		rjmp	PressDown
 keyRT:
-		sbrs	key,switchRT
-		rjmp	check_keys
+		;sbrs	key,switchRT
+		;rjmp	check_keys
 		cbr		key,maskRT
 		sbr		fla,maskRT
 		rjmp	PressRet
@@ -148,12 +148,34 @@ toLambda:
 		rjmp 	ShowScreen
 
 Lambda_Down:
+		sbiw 	YH:YL,1
+		brmi 	set999
+		rjmp   	ShowScreen
+
+set999:
+		ldi 	Yh,0x03
+		ldi 	Yl,0xe7
+		rjmp 	ShowScreen
+
 Lambda_Up:
+		ldi 	Zh,0x03
+		ldi 	Zl,0xe8
+		adiw 	YH:YL,1
+		cp 	 	Yh,Zh
+		cpc	 	Yl,Zl
+		breq 	set0
+		rjmp   	ShowScreen
+set0:
+		clr 	Yh
+		clr 	Yl
+		rjmp 	ShowScreen
 Lambda_Ret:		
 slLambda:
-		movw	rd1h:rd1l,lambdah:lambdal
-		ldi tmp,0x0A ; dividimos por 10
-		mov rd2,tmp
-		rcall	div8
+		secondline
+		movw	rBin1H:rBin1L,Yh:Yl
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		rcall 	LCD_PutAscii
 		ret
 

@@ -97,7 +97,8 @@ LCD_cmd8b:	in	tmp, DDRD		;seteamos el nibble alto de DDRD sin tocar nada mas
 ;*	"LCD_putc"
 ;*	Comando de 4 bits para pasar caracter
 ;*****************************************************************
-LCD_putc:	push 	arg 				;guardo el argumento
+LCD_putc:	push	tmp
+			push 	arg 				;guardo el argumento
 			in		tmp, DDRD			;guardo los bits de address de datos
 			sbr		tmp, 0b11110000		;seteo los bits de datos en salida
 			out		DDRD, tmp			
@@ -128,6 +129,7 @@ LCD_putc:	push 	arg 				;guardo el argumento
 			in		tmp, DDRD
 			cbr		tmp, 0b11110000		;las lineas de datos vuelven a ser salida
 			out		DDRD, tmp
+			pop 	tmp
 			ret
 
 ;*****************************************************************
