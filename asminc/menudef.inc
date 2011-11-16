@@ -56,7 +56,9 @@
 		sLampOff:	.db	"Lamp. On -*Off*",fst
 		Lambda:		.db	high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(Lambda_Ret),low(Lambda_Ret),high(flstd),low(flstd),high(slLambda),low(slLambda),high(sLambda<<1),low(sLambda<<1),0,0
 		sLambda:	.db "Ingrese Lambda: ",fst
-		Busy:		.db	"Leyendo",fst
-		Exp:		.db	12,15,0,0,0,0,0,0,"Exportar a PC? ",fst
-		Done:		.db	"Listo",fst
+		BusyC:		.db	high(idle),low(idle),high(idle),low(idle),high(idle),low(idle),high(flstd),low(flstd),high(comunicateC),low(comunicateC),high(sBusyC<<1),low(sBusyC<<1),0,0
+		sBusy:		.db	"Leyendo",fst
+		sBusyC:		.db	"Procesando",fst
+		sExp:		.db	"Exportar a PC? ",fst
+		sDone:		.db	"Listo",fst
 		sError:		.db	"Error!!",fst

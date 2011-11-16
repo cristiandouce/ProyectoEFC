@@ -169,7 +169,27 @@ set0:
 		clr 	Yh
 		clr 	Yl
 		rjmp 	ShowScreen
-Lambda_Ret:		
+Lambda_Ret:
+		ldi		Xh,high(BusyC<<1)
+		ldi		Xl,low(BusyC<<1)
+		rjmp 	ShowScreen
+idle:
+		ret
+comunicateC:
+		rcall delay1s
+		ldi 	arg,'.'
+		rcall 	LCD_putc
+		rcall delay1s
+		ldi 	arg,'.'
+		rcall 	LCD_putc
+		rcall delay1s
+		ldi 	arg,'.'
+		rcall 	LCD_putc
+		rcall delay1s
+		ldi		Xh,high(Calibra<<1)
+		ldi		Xl,low(Calibra<<1)
+		rjmp 	ShowScreen
+
 slLambda:
 		secondline
 		movw	rBin1H:rBin1L,Yh:Yl
