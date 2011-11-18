@@ -46,7 +46,10 @@ MAIN:
 		rcall	LCD_init
 
 		;* Inicio el SPI como Master
-		;rcall 	SPI_Minit
+		rcall 	SPI_Minit
+
+		;* Inicio el USART 
+		rcall 	Usart_Init
 		
 		;* Ordeno el inicio del Menu
 		rcall	MENU_init
@@ -87,6 +90,7 @@ start:
 
 	.include "asminc/common.inc"
 	.include "asminc/spi_master.inc"
+	.include "asminc/usart_master.inc"
 	.include "asminc/lcd_driver.inc"
 	.include "asminc/menu.inc"
 	

@@ -99,8 +99,8 @@ SENSOR_Init1:
 		out	SPDR,tmp
 
 		;rcall sensor
-		ldi	r26,low(var);vuelvo a hacer q apunte al comienzo
-	    ldi	r27,high(var)
+		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(var)
 		rjmp	return_interrupt
 
 SENSOR_Data:

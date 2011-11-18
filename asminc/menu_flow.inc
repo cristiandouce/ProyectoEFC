@@ -123,7 +123,7 @@ check_keys:
 		rjmp	check_keys
 		
 keyUP:
-		;se presiono key UP si no estába presionada antes seteo el flag y voy al mainloop, si si vuelvo
+		;se presiono key UP si no estaba presionada antes seteo el flag y voy al mainloop, si si vuelvo
 		;sbrs	key,switchUP
 		;rjmp	check_keys
 		cbr		key,maskUP
@@ -186,6 +186,52 @@ comunicateC:
 		ldi 	arg,'.'
 		rcall 	LCD_putc
 		rcall delay1s
+		
+		rcall SlaveSensorInit
+		SetLcdClearAtHome
+		rcall PutSensorData
+
+		rcall delay1s
+		rcall delay1s
+		rcall delay1s
+		rcall delay1s
+		rcall delay1s
+
+		Secondline
+		ldi		arg,' '
+		rcall 	lcd_putc
+		ldi		Zh,high(sEnviandoPC<<1)
+		ldi		Zl,low(sEnviandoPC<<1)
+
+		rcall	LCD_Putstring
+
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'h'
+		rcall USART_Transmit
+		ldi arg,'o'
+		rcall USART_Transmit
+		ldi arg,'r'
+		rcall USART_Transmit
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'!'
+		rcall USART_Transmit
+
+		rcall delay1s
+		rcall delay1s
+
+		SetLcdClearAtHome
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+
+		rcall	LCD_Putstring
+
+		rcall delay1s
+		rcall delay1s
+
 		ldi		Xh,high(Calibra<<1)
 		ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen

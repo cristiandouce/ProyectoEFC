@@ -62,3 +62,4 @@
 		sExp:		.db	"Exportar a PC? ",fst
 		sDone:		.db	"Listo",fst
 		sError:		.db	"Error!!",fst
+		sEnviandoPC:.db	"Enviando a la PC",fst
