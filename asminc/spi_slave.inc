@@ -54,9 +54,11 @@ SPI_Sinit:
 SPI_STC:
 		in dta,SPDR;guardo el byte q me mando
 		cpi dta,'s';me fijo si fue la orden 's'
-		breq SENSOR_Init1;y voy a hacer la rutina dl sensor
+		breq sensor;y voy a hacer la rutina dl sensor
 		cpi dta,'d'
 		breq SENSOR_Data
+		cpi dta,'p';prueba de envio y recepcion en master
+		breq SENSOR_FAKE
 		
 return_interrupt:
 		reti

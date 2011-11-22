@@ -55,10 +55,10 @@ SPI_Mtransmit:
 		out		SPDR, tmp
 		ret
 ;*****************************************************************
-;*	Recepcion de 'tmp' por SPI del SLAVE
+;*	Recepcion de 'rtn' por SPI del SLAVE
 ;*****************************************************************
 SPI_Mreceive:
-		in		tmp, SPDR
+		in		rtn, SPDR
 		ret
 
 ;*****************************************************************

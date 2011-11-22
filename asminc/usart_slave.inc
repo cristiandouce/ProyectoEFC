@@ -45,16 +45,16 @@ USART_Init:
 ;en xck es hacer 1/baudrate
 ;Por eso es que cuando cuento los pulsos d sclk==xck,preescalo el timer por 256
 ;ya que da una frecuencia parecida a la de la usart
-	ldi r17,0x00
-	ldi r16,0x0C; un baud rate de 4800 fosc=1MHz 
-	sts UBRR0H,r17
-	sts UBRR0L,r16
-	ldi r18,0b00100000; seteo el udre0
-	sts UCSR0A,r18
-	ldi r18,0b00011000;activo receptor y emisor
-	sts UCSR0B,r18
-	ldi r18,0b01000110;modo sincronico, 8 bits, sin bit d paridad
-	sts UCSR0C,r18;con 1 solo bit d stop
+	ldi tmp,0x00
+	sts UBRR0H,tmp
+	ldi tmp,0x0C; un baud rate de 4800 fosc=1MHz 
+	sts UBRR0L,tmp
+	ldi tmp,0b00100000; seteo el udre0
+	sts UCSR0A,tmp
+	ldi tmp,0b00011000;activo receptor y emisor
+	sts UCSR0B,tmp
+	ldi tmp,0b01000110;modo sincronico, 8 bits, sin bit d paridad
+	sts UCSR0C,tmp;con 1 solo bit d stop
 	ret
 
 ;********************************************************************************************************
@@ -62,8 +62,8 @@ USART_Init:
 
 USART_Transmit:
 		;Wait for empty transmit buffer
-		lds	 r17,UCSR0A
-		sbrs r17,UDRE0
+		lds	 tmp,UCSR0A
+		sbrs tmp,UDRE0
 		rjmp USART_Transmit
 		; Put data into buffer, sends the data
 		sts UDR0,dta
@@ -74,9 +74,9 @@ USART_Transmit:
 
 USART_Receive:
 ; Wait for data to be received
-	lds	 r17,UCSR0A
-	sbrs r17,RXC0
+	lds	 tmp,UCSR0A
+	sbrs tmp,RXC0
 	rjmp USART_Receive
 ; Get and return received data from buffer
-	lds aux, UDR0
+	lds rtn, UDR0
 	ret

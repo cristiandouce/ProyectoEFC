@@ -176,27 +176,13 @@ Lambda_Ret:
 idle:
 		ret
 comunicateC:
-		rcall delay1s
-		ldi 	arg,'.'
-		rcall 	LCD_putc
-		rcall delay1s
-		ldi 	arg,'.'
-		rcall 	LCD_putc
-		rcall delay1s
-		ldi 	arg,'.'
-		rcall 	LCD_putc
-		rcall delay1s
-		
 		rcall SlaveSensorInit
-		SetLcdClearAtHome
 		rcall PutSensorData
+		rcall delay1s
+		rcall delay1s
+		rjmp ShowScreen
 
-		rcall delay1s
-		rcall delay1s
-		rcall delay1s
-		rcall delay1s
-		rcall delay1s
-
+		
 		Secondline
 		ldi		arg,' '
 		rcall 	lcd_putc
