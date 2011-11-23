@@ -13,4 +13,4 @@ clean_win:
 	rm \*.hex \*.cof \*.HEX \*.LST \*.obj \*.SDI
 
 program:
-	avrdude -c usbtiny -p m88 flash:w:$(MICRO).hex
+	avrdude -c usbtiny -p m88 -U flash:w:$(MICRO).hex
