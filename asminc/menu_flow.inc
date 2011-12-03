@@ -280,6 +280,26 @@ ComunicateL:
 		rjmp 	ShowScreen
 		ret
 
+ComunicateQ:
+		SetLcdClearAtHome 		
+		rcall 	getmotorcount
+		movw	rBin1H:rBin1L,dtal:dta
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		ldi tmp,5
+		ld	arg,Z+
+tsloop7:	
+		rcall USART_Transmit
+		rcall LCD_Putc
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		brne tsloop7
+		rcall delay1s
+		rcall delay1s
+		rjmp 	ShowScreen
+		
 res_up:
     	push xh
     	push xl

@@ -1,12 +1,19 @@
-;*****************************************************************
+/*
+ * master.asm
+ *
+ *  Created: 03/12/2011 01:27:34 p.m.
+ *   Author: Susana
+ */ 
+
+ ;*****************************************************************
 ;*	File: master.asm
 ;*	
 ;*	Espectrofotocolorimetro Microcontrolador MASTER
 ;*	
 ;*	Autores:
-;*			- Rodriguez Ca√±ete, Macarena
+;*			- Rodriguez CaÒete, Macarena
 ;*			- Pepe, Ezequiel Ignacio
-;*			- Douce Su√°rez, Cristian Gabriel
+;*			- Douce Su·rez, Cristian Gabriel
 ;*
 ;*	
 ;*
@@ -14,7 +21,7 @@
 ;*
 ;*
 
-	.include "asminc/m88def.inc"
+	.include "m88def.inc"
 	.include "asminc/menudef.inc"
 	.include "asminc/regs_alias.inc"
 	.include "asminc/macros_master.inc"	
@@ -29,7 +36,7 @@
 	
 
 ;*****************************************************************
-;*	Inicializaci√≥n del Micro luego del RESET
+;*	InicializaciÛn del Micro luego del RESET
 ;*****************************************************************
 RESET:
 		ldi		tmp, low(RAMEND)
@@ -68,3 +75,4 @@ FinPrograma:
 	.include "asminc/lcd_driver.inc"
 	.include "asminc/menu.inc"
 	
+

@@ -73,9 +73,7 @@ psloop:
 		ret
 
 LCD_PutAscii:
-		ld	arg,Z+
-		ld	arg,Z+
-		ldi tmp,3
+		ldi tmp,5
 		ld	arg,Z+
 paloop:	
 		rcall lcd_putc

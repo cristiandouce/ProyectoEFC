@@ -77,8 +77,8 @@
 		sProbando: 	.db 	"Probando motor",fst
 		ProbarM:	.db		high(lCalibra),low(lCalibra),high(lProbar),low(lProbar),high(comunicateM),low(comunicateM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbarM<<1),low(sProbarM<<1),high(sProbar<<1),low(sProbar<<1)
 		sProbarM: 	.db 	"Probar motor",fst
-		Probar: 	.db		high(lProbarM),low(lProbarM),high(lLamp),low(lLamp),high(ComunicateC),low(ComunicateC),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sProbar<<1),low(sProbar<<1),0,0
-		sProbar: 	.db 	"Probar sensor",fst
+		Probar: 	.db		high(lProbarM),low(lProbarM),high(lLamp),low(lLamp),high(ComunicateQ),low(ComunicateQ),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sProbar<<1),low(sProbar<<1),0,0
+		sProbar: 	.db 	"Cantidad de pasos",fst
 		sCalibra: 	.db 	"Calibracion",fst
 		Lampara:	.db		high(lProbar),low(lProbar),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sProbar<<1),low(sProbar<<1),0,0
 		sLampOn:	.db		"Lamp.*On*- Off ",fst

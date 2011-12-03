@@ -137,16 +137,17 @@ tsloop:
 		ret
 
 GetMotorCount:
-		;* cargo un contador para los 5 datos
-		
-start3:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
+		SendInstruction 'p'
+		mov dta,tmp
+		rcall 	delay200ms
 		SendInstruction 'c'
 		mov dta,tmp
+		rcall 	delay200ms
 		SendInstruction 'c'
 		mov dtal,tmp
-		;* Cargo el dato en argumento para llevar al lcd
+		rcall 	delay200ms
 		ret
 
 SlaveMotorInit:

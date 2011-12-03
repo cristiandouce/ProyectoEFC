@@ -98,6 +98,7 @@ SendSensorData:
 PrepMotorCount:
 		ldi xh,high(cant_pasos)
 		ldi xl,low(cant_pasos)
+		ldi arg,4
 		rjmp	return_interrupt	
 
 SendMotorCount:

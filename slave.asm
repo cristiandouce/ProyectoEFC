@@ -1,12 +1,18 @@
-;*****************************************************************
+/*
+ * slave.asm
+ *
+ *  Created: 03/12/2011 01:34:41 p.m.
+ *   Author: Susana
+ */ 
+ ;*****************************************************************
 ;*	File: slave.asm
 ;*	
 ;*	Espectrofotocolorimetro Microcontrolador SLAVE
 ;*	
 ;*	Autores:
-;*			- Rodriguez CaÃ±ete, Macarena
+;*			- Rodriguez Cañete, Macarena
 ;*			- Pepe, Ezequiel Ignacio
-;*			- Douce SuÃ¡rez, Cristian Gabriel
+;*			- Douce Suárez, Cristian Gabriel
 ;*
 ;*	
 ;*
@@ -14,7 +20,7 @@
 ;*
 ;*
 
-	.include "asminc/m88def.inc"
+	.include "m88def.inc"
 	.include "asminc/regs_alias.inc"
  	.include "asminc/motordef.inc"
 ;defino constantes
@@ -41,10 +47,10 @@
 		rjmp SPI_STC ; SPI Transfer Complete Handler
 
 ;*****************************************************************
-;*	InicializaciÃ³n del Micro luego del RESET
+;*	Inicialización del Micro luego del RESET
 ;*****************************************************************
 RESET:
-		;*	InicializaciÃ³n del StackPointer
+		;*	Inicialización del StackPointer
 		ldi	tmp, low(RAMEND)
 		out	SPL, tmp
 		ldi	tmp, high(RAMEND)
@@ -91,7 +97,7 @@ MAIN:
 								; el master muestra en pantalla
 								; "Iniciando motor!!"
 								; "Espere por favor..."
-		;rcall contarpasos
+		rcall contarpasos
 
 
 		;* Inicializo comunicacion SPI
@@ -119,4 +125,6 @@ espera:
 	.include "asminc/sensor.inc"
 	.include "asminc/timer_slave.inc"
  	.include "asminc/motorcontrol.inc"
+
+
 
