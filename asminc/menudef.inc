@@ -63,3 +63,5 @@
 		sDone:		.db	"Listo",fst
 		sError:		.db	"Error!!",fst
 		sEnviandoPC:.db	"Enviando a la PC",fst
+		PruebaSnsr:	.db	high(idle),low(idle),high(idle),low(idle),high(lCalibra),low(lCalibra),high(flstd),low(flstd),high(pidoSensor),low(pidoSensor),high(sPrueba<<1),low(sPrueba<<1),0,0
+		sPrueba:	.db "Dato: ",fst

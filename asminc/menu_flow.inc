@@ -169,14 +169,16 @@ set0:
 		clr 	Yh
 		clr 	Yl
 		rjmp 	ShowScreen
+
 Lambda_Ret:
 		ldi		Xh,high(BusyC<<1)
 		ldi		Xl,low(BusyC<<1)
 		rjmp 	ShowScreen
 idle:
 		ret
-comunicateC:
-		rcall SlaveSensorInit
+		
+comunicateCold:
+		rcall SlaveSensorInit ;Tarda 2 segundos
 		rcall PutSensorData
 		rcall delay1s
 		rcall delay1s
@@ -221,6 +223,21 @@ comunicateC:
 		ldi		Xh,high(Calibra<<1)
 		ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen
+
+comunicateC:
+		; Indico al Slave que inicie el Sensor
+		rcall SlaveSensorInit ;Tarda 2 segundos
+
+		ldi		Xh,high(PruebaSnsr<<1)
+		ldi		Xl,low(PruebaSnsr<<1)
+		rjmp 	ShowScreen
+
+pidoSensor:
+		rcall PutSensorData
+
+		ldi		Xh,high(Calibra<<1)
+		ldi		Xl,low(Calibra<<1)
+		rjmp ShowScreen
 
 slLambda:
 		secondline

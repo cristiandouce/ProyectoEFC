@@ -21,12 +21,6 @@
 
 ; Por ahora incluidas en los respectivos archivos de include.
 
-	.equ sclk=4
-	.equ sdin=1
-	.equ sdout=0
-	.equ control=PORTD
-
-
 
 ;********************************************************************************************************
 ;Defino las variables
@@ -77,7 +71,7 @@ RESET:
 	    ; Configuracion POSTA
 		cbi DDRD, 0;configuro RX como entrada
 		sbi	DDRD, 1; TX como salida
-		sbi DDRD,4; XCK como salida,master mode
+		sbi DDRD, 4; XCK como salida,master mode
 
 
 		rjmp MAIN
@@ -92,8 +86,7 @@ MAIN:
 		rcall	SPI_Sinit
 
 		; Inicizlizo y configuro SENSOR
-		rcall sensor_init
-		rcall sensor_configuracion
+		rcall PROCESS_INITIALIZATION
 
 		; Espero llamada del master
 		rjmp   idle	
@@ -103,14 +96,9 @@ idle:
 jm:
 		rjmp jm
 
-
-	.include "asminc/sensor.inc"
-	.include "asminc/spi_slave.inc"
 	.include "asminc/timer_slave.inc"
 	.include "asminc/usart_slave.inc"
-	;.include "asminc/common.inc"
-
-
+	.include "asminc/common.inc"
 
 
 
@@ -121,12 +109,15 @@ SENSOR_FAKE:
 		out	SPDR,tmp
 
 		;rcall sensor
-		ldi	Xl,low(ahora);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(ahora)
+		ldi		Xl,low(ahora);vuelvo a hacer q apunte al comienzo
+	    ldi		Xh,high(ahora)
 		rjmp	return_interrupt
 
 SENSOR_Data:
-		ld tmp,X+
-		out SPDR,tmp
+		ldi 	tmp,'k'
+		out 	SPDR,tmp
 		rjmp	return_interrupt	
 ;FIN	
+
+	.include "asminc/spi_slave.inc"
+	.include "asminc/sensor_prev.inc"

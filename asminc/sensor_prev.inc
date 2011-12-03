@@ -20,7 +20,7 @@
 ;*****************************************************************
 ;*	CONSTANTES
 ;*****************************************************************
-	.equ sclk=6
+	.equ sclk=4
 	.equ sdin=1
 	.equ sdout=0
 	.equ control=PORTD
@@ -59,12 +59,9 @@
 ;*****************************************************************
 
 PROCESS_INITIALIZATION:
-
- cbi PortB,sclk
- cbi control,sdin
- sbi control,sdout
  rcall CCD_POWERUP;Inicializo el CCD
  rcall delay1s; Espera 1 segundo para que la circuiteria del CCD se estabilice
+ ret
 
 ;*****************************************************************
 ;*	"PROCESS_CCD"
@@ -89,16 +86,16 @@ rcall CCD_READPIXEL
 ; a recibir independientemente del proceso del sensor
 		
 		;Le digo donde guardar los datos
-		ldi	Yl,LOW(var)
-		ldi Yh,HIGH(var)
+		ldi	Xl,LOW(var)
+		ldi Xh,HIGH(var)
 recibir:
 		rcall CCD_RECEIVE_BYTE
-	    st Y+,rtn;guardo el pixel en la variable var
+	    st X+,rtn;guardo el pixel en la variable var
 	    dec tmp
 	    brne recibir
 		;Vuelvo Y al principio
-		ldi	Yl,LOW(var)
-		ldi Yh,HIGH(var)
+		ldi	Xl,LOW(var)
+		ldi Xh,HIGH(var)
 		ret
 
 ;*****************************************************************
@@ -300,7 +297,8 @@ ret
 CCD_RECEIVE_BYTE:
 ; Rutina que recibe el Byte que envia el CCD indicando la cantidad de luz "leida" por el pixel.
 ; No toma argumentos, pero devuelve el Byte recibido por el rtn
-
+	
+	ldi rtn,0
 	sbis control,sdout; Si SDOUT esta en bajo, es porque llego el bit de Start
 	rjmp LOAD_BYTE
 CHECK_START_BIT: ; Si no, espera a que llegue el bit de start

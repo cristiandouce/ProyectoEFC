@@ -58,7 +58,7 @@ SPI_Mtransmit:
 ;*	Recepcion de 'rtn' por SPI del SLAVE
 ;*****************************************************************
 SPI_Mreceive:
-		in		rtn, SPDR
+		in		tmp, SPDR
 		ret
 
 ;*****************************************************************

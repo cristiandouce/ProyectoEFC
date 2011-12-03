@@ -68,26 +68,29 @@ SlaveSensorInit:
 
 		;*	Espero 1 segundo hasta que termine la lectura
 		rcall 	delay1s
+		rcall 	delay1s
 		ret
 
 PutSensorData:
 		;* cargo un contador para los 5 datos
-		ldi 	delay,1
+		ldi 	delay,102
 start:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'd'
 		
 		;* Convierto el dato recibido a ASCII y envio al LCD (en segunda linea)
-		clr Yh
-		mov Yl,rtn
-		rcall slLambda
-
+		;clr Yh
+		;mov Yl,rtn
+		;rcall slLambda
+		;SetLCDClearAtHome
 		;* Cargo el dato en argumento para llevar al lcd
-		;mov		arg,tmp
-		;rcall	LCD_putc
-		;rcall	LCD_Wait
+		mov		arg,tmp
+		rcall	LCD_putc
+		rcall	LCD_Wait
 
+		rcall delay1s
+		
 		;* Decremento el contador
 		dec 	delay
 		brne 	start
