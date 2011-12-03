@@ -1,4 +1,24 @@
 ;*****************************************************************
+;*	File: menudef.inc
+;*	
+;*	Definiciones para el manejo del Menu por LCD 16x2
+;*	
+;*	Autores:
+;*			- Rodriguez Cañete, Macarena
+;*			- Pepe, Ezequiel Ignacio
+;*			- Douce Suárez, Cristian Gabriel
+;*	
+;*	
+;*	
+;*	
+;*	
+;*	
+;*	
+;*	
+;*****************************************************************
+
+
+;*****************************************************************
 ;*	CONSTANTES
 ;*****************************************************************
 ;-Estados
@@ -37,7 +57,9 @@
 ;*	VARIABLES
 ;*****************************************************************
 	.dseg
-		buffer: .byte 	5
+		buffer: 		.byte 	5
+		datos: 			.byte 	200
+		valor_lambda:	.byte 	2
 
 ;*****************************************************************
 ;*	CADENAS DE CARACTERES
@@ -46,22 +68,28 @@
 .cseg
 	.org 0x0F00    									
 
-		;direccion:		prev(2)//next(2)//return(2)//firstlinehandler//secondlinehandler//fstline//scdline
-		Lectura:	.db	high(check_keys),low(check_keys),high(lCalibra),low(lCalibra),high(lLectura),low(lLectura),high(flstd),low(flstd),high(slstd),low(slstd),high(sLectura<<1),low(sLectura<<1),high(sCalibra<<1),low(sCalibra<<1)
-		sLectura:	.db "Lectura",fst
-		Calibra:	.db	high(lLectura),low(lLectura),high(lLamp),low(lLamp),high(toLambda),low(toLambda),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sCalibra<<1),low(sCalibra<<1),0,0
-		sCalibra: 	.db "Calibracion",fst
-		Lampara:	.db	high(lCalibra),low(lCalibra),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sCalibra<<1),low(sCalibra<<1),0,0
-		sLampOn:	.db	"Lamp.*On*- Off ",fst
-		sLampOff:	.db	"Lamp. On -*Off*",fst
-		Lambda:		.db	high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(Lambda_Ret),low(Lambda_Ret),high(flstd),low(flstd),high(slLambda),low(slLambda),high(sLambda<<1),low(sLambda<<1),0,0
-		sLambda:	.db "Ingrese Lambda: ",fst
-		BusyC:		.db	high(idle),low(idle),high(idle),low(idle),high(idle),low(idle),high(flstd),low(flstd),high(comunicateC),low(comunicateC),high(sBusyC<<1),low(sBusyC<<1),0,0
-		sBusy:		.db	"Leyendo",fst
-		sBusyC:		.db	"Procesando",fst
-		sExp:		.db	"Exportar a PC? ",fst
-		sDone:		.db	"Listo",fst
-		sError:		.db	"Error!!",fst
-		sEnviandoPC:.db	"Enviando a la PC",fst
-		PruebaSnsr:	.db	high(idle),low(idle),high(idle),low(idle),high(lCalibra),low(lCalibra),high(flstd),low(flstd),high(pidoSensor),low(pidoSensor),high(sPrueba<<1),low(sPrueba<<1),0,0
-		sPrueba:	.db "Dato: ",fst
+		;direccion:			prev(2)//next(2)//return(2)//firstlinehandler//secondlinehandler//fstline//scdline
+		Lectura:	.db		high(check_keys),low(check_keys),high(lCalibra),low(lCalibra),high(ComunicateL),low(ComunicateL),high(flstd),low(flstd),high(slstd),low(slstd),high(sLectura<<1),low(sLectura<<1),high(sCalibra<<1),low(sCalibra<<1)
+		sLectura:	.db 	"Lectura",fst
+		Resultados: .db 	high(res_up),low(res_up),high(res_down),low(res_down),high(lLectura),low(lLectura),high(displongond),low(displongond),high(dispintensidad),low(dispintensidad),0,0,0,0
+		Calibra:	.db		high(lLectura),low(lLectura),high(lProbarM),low(lProbarM),high(toLambda),low(toLambda),high(flstd),low(flstd),high(slstd),low(slstd),high(sCalibra<<1),low(sCalibra<<1),high(sProbarM<<1),low(sProbarM<<1)
+		MotorM: 	.db		high(mot_up),low(mot_up),high(mot_down),low(mot_down),high(lProbarM),low(lProbarM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbando<<1),low(sProbando<<1),high(sProbando<<1),low(sProbando<<1)
+		sProbando: 	.db 	"Probando motor",fst
+		ProbarM:	.db		high(lCalibra),low(lCalibra),high(lProbar),low(lProbar),high(comunicateM),low(comunicateM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbarM<<1),low(sProbarM<<1),high(sProbar<<1),low(sProbar<<1)
+		sProbarM: 	.db 	"Probar motor",fst
+		Probar: 	.db		high(lProbarM),low(lProbarM),high(lLamp),low(lLamp),high(ComunicateC),low(ComunicateC),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sProbar<<1),low(sProbar<<1),0,0
+		sProbar: 	.db 	"Probar sensor",fst
+		sCalibra: 	.db 	"Calibracion",fst
+		Lampara:	.db		high(lProbar),low(lProbar),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sProbar<<1),low(sProbar<<1),0,0
+		sLampOn:	.db		"Lamp.*On*- Off ",fst
+		sLampOff:	.db		"Lamp. On -*Off*",fst
+		Lambda:		.db		high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(Lambda_Ret),low(Lambda_Ret),high(flstd),low(flstd),high(slLambda),low(slLambda),high(sLambda<<1),low(sLambda<<1),0,0
+		sLambda:	.db 	"Ingrese Lambda: ",fst
+		BusyC:		.db		high(idle),low(idle),high(idle),low(idle),high(idle),low(idle),high(flstd),low(flstd),high(comunicateC),low(comunicateC),high(sBusyC<<1),low(sBusyC<<1),0,0
+		sBusy:		.db		"Leyendo",fst
+		sBusyC:		.db		"Procesando",fst
+		sExp:		.db		"Exportar a PC? ",fst
+		sDone:		.db		"Listo",fst
+		sError:		.db		"Error!!",fst
+		sEnviandoPC:.db		"Enviando a la PC",fst
+ 

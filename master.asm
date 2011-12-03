@@ -13,6 +13,7 @@
 ;*
 ;*
 ;*
+
 	.include "asminc/m88def.inc"
 	.include "asminc/menudef.inc"
 	.include "asminc/regs_alias.inc"
@@ -20,10 +21,10 @@
 		
 	.dseg
 		var:	.byte	6
+	cant_pasos: .byte 	2
 
 	.cseg
 	.org 0
-
 		rjmp 	RESET
 	
 
@@ -57,46 +58,11 @@ MAIN:
 		;* Meto todo el codigo de jmps del menu.
 	.include "asminc/menu_flow.inc"
 
-FIN_P:
-		rjmp 	FIN_P
-
-;* esto hay que meterlo en otro inc, asi como todo el
-;* codigo opciones del menu y manejarlo con includes
-SlaveSensorInit:
-		;*	Mando al slave para que inicie la lectura del sensor
-		SendInstruction 's'
-
-		;*	Espero 1 segundo hasta que termine la lectura
-		rcall 	delay1s
-		rcall 	delay1s
-		ret
-
-PutSensorData:
-		;* cargo un contador para los 5 datos
-		ldi 	delay,102
-start:
-		;* Mando instruccion de lectura
-		;* y levanto el dato
-		SendInstruction 'd'
-		
-		;* Convierto el dato recibido a ASCII y envio al LCD (en segunda linea)
-		;clr Yh
-		;mov Yl,rtn
-		;rcall slLambda
-		;SetLCDClearAtHome
-		;* Cargo el dato en argumento para llevar al lcd
-		mov		arg,tmp
-		rcall	LCD_putc
-		rcall	LCD_Wait
-
-		rcall delay1s
-		
-		;* Decremento el contador
-		dec 	delay
-		brne 	start
-		ret
+FinPrograma:
+		rjmp 	FinPrograma
 
 	.include "asminc/common.inc"
+	.include "asminc/ascii.inc"
 	.include "asminc/spi_master.inc"
 	.include "asminc/usart_master.inc"
 	.include "asminc/lcd_driver.inc"

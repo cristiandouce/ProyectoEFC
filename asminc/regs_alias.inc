@@ -22,6 +22,8 @@
 ;*****************************************************************
 
 	
+	.def	low_suma=	 r2
+	.def	high_suma=	 r3
 	.def	rBin1L	=	 r6
 	.def	rBin1H	=	 r7
 	.def	rBin2L	=	 r4
@@ -35,12 +37,12 @@
 	.def	tmp		=	 r16		;* Registro para uso general
 	.def	arg		=	 r17		;* Argumentos para pasar a funciones
 	.def	rtn		=	 r18		;valor de retorno de subrutinas
-	.def    dta		=	 r19		;valor de bayte recivido por SPI
+	.def    delay	=	 r19		;valor de bayte recivido por SPI
 	.def	fla		=	 r20		;Registro para flags:b(0-1):Opcion global.b2:switchUPon
 								;b3:switchDWon ;b4:switchRTon; b5:on/off; b6-7 tipo de menu
 	.def	key		=	r21
-	.def	lmd		=	r22		
-	.def 	delay	=	r23
+	.def	dta		=	r22		
+	.def 	dtal	=	r23
 	.def 	aux 	=	r24
 
 	.def 	con		=	r25		; hay que reemplazar por r[0-15]

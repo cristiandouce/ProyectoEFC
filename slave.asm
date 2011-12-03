@@ -16,7 +16,7 @@
 
 	.include "asminc/m88def.inc"
 	.include "asminc/regs_alias.inc"
-
+ 	.include "asminc/motordef.inc"
 ;defino constantes
 
 ; Por ahora incluidas en los respectivos archivos de include.
@@ -24,15 +24,15 @@
 
 ;********************************************************************************************************
 ;Defino las variables
- .dseg
- .org 0x200
- ahora:	.byte	6
- var:	.byte	102
-
+	.dseg
+		.org 0x200
+		var:	.byte	120
+ cant_pasos:	.byte   2
+ promedio: 		.byte 	1
 
 	.cseg
 		.org 0x0000
-	rjmp RESET
+		rjmp RESET
 
 ;*****************************************************************
 ;*	Defino los vectores de interrupcion
@@ -49,31 +49,7 @@ RESET:
 		out	SPL, tmp
 		ldi	tmp, high(RAMEND)
 		out	SPH, tmp
-
-		; Configuracion de prueba
-		ldi	Xl,low(ahora);x apunta a var
-	    ldi	Xh,high(ahora)
-
-		ldi tmp,'a'
-		st X+,tmp
-		ldi tmp,'h'
-		st X+,tmp
-		ldi tmp,'o'
-		st X+,tmp
-		ldi tmp,'r'
-		st X+,tmp
-		ldi tmp,'a'
-		st X+,tmp
-
-		ldi	Xl,low(ahora);x apunta a var
-	    ldi	Xh,high(ahora)
-
-	    ; Configuracion POSTA
-		cbi DDRD, 0;configuro RX como entrada
-		sbi	DDRD, 1; TX como salida
-		sbi DDRD, 4; XCK como salida,master mode
-
-
+	    ;Conf posta
 		rjmp MAIN
 
 
@@ -82,42 +58,65 @@ RESET:
 ;*	MAIN Program for microcontroller
 ;*****************************************************************
 MAIN:	
-		; Inicializo SPI
+		;* Inicio el SPI como SLAVE
+		cbi DDRD, 0;configuro RX como entrada
+		sbi	DDRD, 1; TX como salida
+		sbi DDRD,4; XCK como salida,master mode
+
+		;* Y ESTO??? COMMENTS PLEASE!!!
+        ldi tmp,0b00001111
+        out DDRC,tmp
+        cbi DDRB,0
+        cbi DDRB,1
+        cbi DDRB,6
+        cbi DDRB,6
+        sbi PORTB,0
+        sbi PORTB,1
+        sbi PORTB,6
+
+        ;* Posicion inicial motor
+        ldi tmp,low(posicion1<<1)
+		mov wrdl,tmp
+		ldi tmp,high(posicion1<<1)
+		mov wrdh,tmp
+
+		;* Inicializa motor
+								; Lo que conviene es lo siguiente:
+								; El master cuando inicia
+								; envia una instruccion al slave de iniciar motor
+								; este puede devolver ok (si termina)
+								; o error (si no puede o lo que sea)
+								; Cuestion:
+								; Mientras el motor se inicializa
+								; el master muestra en pantalla
+								; "Iniciando motor!!"
+								; "Espere por favor..."
+		;rcall contarpasos
+
+
+		;* Inicializo comunicacion SPI
 		rcall	SPI_Sinit
 
-		; Inicizlizo y configuro SENSOR
-		rcall PROCESS_INITIALIZATION
+		;* Inicio y configuro el Sensor
+		rcall sensor_Init
+		;rcall sensor_configuracion
 
-		; Espero llamada del master
-		rjmp   idle	
+		;* Espero instrucciones del master
+		ldi	Xl,low(cant_pasos)
+	    ldi	Xh,high(cant_pasos)
+		sei
 		
 idle:
 		sei
-jm:
-		rjmp jm
+espera:
+		rjmp espera
 
-	.include "asminc/timer_slave.inc"
 	.include "asminc/usart_slave.inc"
-	.include "asminc/common.inc"
-
-
-
-; ***********************************
-; Functiones temporales del sensorrrr
-SENSOR_FAKE:
-		ldi tmp,'w'
-		out	SPDR,tmp
-
-		;rcall sensor
-		ldi		Xl,low(ahora);vuelvo a hacer q apunte al comienzo
-	    ldi		Xh,high(ahora)
-		rjmp	return_interrupt
-
-SENSOR_Data:
-		ldi 	tmp,'k'
-		out 	SPDR,tmp
-		rjmp	return_interrupt	
-;FIN	
-
+	.include "asminc/calibracion.inc"
+	.include "asminc/common.inc"		
 	.include "asminc/spi_slave.inc"
-	.include "asminc/sensor_prev.inc"
+	.include "asminc/procesar_lectura.inc"
+	.include "asminc/sensor.inc"
+	.include "asminc/timer_slave.inc"
+ 	.include "asminc/motorcontrol.inc"
+

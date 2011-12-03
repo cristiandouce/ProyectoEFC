@@ -1,3 +1,24 @@
+;*****************************************************************
+;*	File: menu_flow.inc
+;*	
+;*	Este archivo contiene el flujo de menu y llamados
+;*	desde el microcontrolador de ROL master
+;*
+;*	Autores:
+;*			- Rodriguez Cañete, Macarena
+;*			- Pepe, Ezequiel Ignacio
+;*			- Douce Suárez, Cristian Gabriel
+;*		
+;*	
+;*	
+;*	
+;*	
+;*	
+;*	
+;*****************************************************************
+
+
+
 ShowScreen:
 		SetLcdClearAtHome
 		movw	Zh:Zl,Xh:Xl
@@ -92,6 +113,14 @@ lLectura:
 		ldi		Xh,high(Lectura<<1)
 		ldi		Xl,low(Lectura<<1)
 		rjmp	ShowScreen
+lProbar:
+		ldi		Xh,high(Probar<<1)
+		ldi		Xl,low(Probar<<1)
+		rjmp	ShowScreen
+lProbarM:
+		ldi		Xh,high(ProbarM<<1)
+		ldi		Xl,low(ProbarM<<1)
+		rjmp	ShowScreen
 
 lLamp:
 		ldi		Xh,high(Lampara<<1)
@@ -143,6 +172,11 @@ keyRT:
 		rjmp	PressRet
 
 toLambda:
+		ldi 	zl,low(valor_lambda<<1)
+		ldi 	zh,high(valor_lambda<<1)
+		ld 		yh,z+
+		ld 		yl,z
+
 		ldi		Xh,high(Lambda<<1)
 		ldi		Xl,low(Lambda<<1)
 		rjmp 	ShowScreen
@@ -169,28 +203,24 @@ set0:
 		clr 	Yh
 		clr 	Yl
 		rjmp 	ShowScreen
-
 Lambda_Ret:
+		ldi 	zl,low(valor_lambda<<1)
+		ldi 	zh,high(valor_lambda<<1)
+		st 		z+,yh
+		st 		z,yl
 		ldi		Xh,high(BusyC<<1)
 		ldi		Xl,low(BusyC<<1)
 		rjmp 	ShowScreen
 idle:
 		ret
-		
-comunicateCold:
-		rcall SlaveSensorInit ;Tarda 2 segundos
+comunicateC:		
+		SetLcdClearAtHome
+		rcall SlaveSensorInit
 		rcall PutSensorData
-		rcall delay1s
-		rcall delay1s
-		rjmp ShowScreen
 
-		
-		Secondline
-		ldi		arg,' '
-		rcall 	lcd_putc
+		rcall delay1s
 		ldi		Zh,high(sEnviandoPC<<1)
 		ldi		Zl,low(sEnviandoPC<<1)
-
 		rcall	LCD_Putstring
 
 		ldi arg,'a'
@@ -205,10 +235,6 @@ comunicateCold:
 		rcall USART_Transmit
 		ldi arg,'!'
 		rcall USART_Transmit
-
-		rcall delay1s
-		rcall delay1s
-
 		SetLcdClearAtHome
 		ldi		arg,'>'
 		rcall 	lcd_putc
@@ -224,21 +250,6 @@ comunicateCold:
 		ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen
 
-comunicateC:
-		; Indico al Slave que inicie el Sensor
-		rcall SlaveSensorInit ;Tarda 2 segundos
-
-		ldi		Xh,high(PruebaSnsr<<1)
-		ldi		Xl,low(PruebaSnsr<<1)
-		rjmp 	ShowScreen
-
-pidoSensor:
-		rcall PutSensorData
-
-		ldi		Xh,high(Calibra<<1)
-		ldi		Xl,low(Calibra<<1)
-		rjmp ShowScreen
-
 slLambda:
 		secondline
 		movw	rBin1H:rBin1L,Yh:Yl
@@ -246,5 +257,97 @@ slLambda:
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
 		rcall 	LCD_PutAscii
+		ret
+
+comunicateM:
+		rcall 	SlaveMotorInit
+		ldi		Xh,high(MotorM<<1)
+		ldi		Xl,low(MotorM<<1)
+		rjmp 	ShowScreen
+
+
+		
+ComunicateL:
+		SetLcdClearAtHome 		
+		;rcall 	SlaveSensorInit
+		;rcall 	PutSensorData
+		rcall	SlavePrepMotorC
+		rcall 	getmotorcount
+		ldi		Zh,high(datos<<1)
+		ldi		Zl,low(datos<<1)
+		ldi		Xh,high(Resultados<<1)
+		ldi		Xl,low(Resultados<<1)
+		rjmp 	ShowScreen
+		ret
+
+res_up:
+    	push xh
+    	push xl
+    	adiw Zh:Zl,1
+		ldi yh,high(datos<<1)
+		ldi yl,low(datos<<1)
+		movw xh:xl,zh:zl
+		sub xl,yl
+		sbc xh,yh
+		ldi yh,high(cant_pasos<<1)
+		ldi yl,low(cant_pasos<<1)
+		cp  xl,yl
+		cpc xh,yh
+		brlo OVERFLOWDATA
+    	pop xl
+    	pop xh
+		rjmp 	ShowScreen
+
+OVERFLOWDATA:
+		pop xl
+		pop xh
+		ldi zh,high(datos<<1)
+		ldi zl,low(datos<<1)
+		rjmp ShowScreen
+
+res_down:
+		sbiw	Zh:Zl,1
+    	cpi	 	Zh,high(datos<<1)
+    	ldi 	tmp,low(datos<<1)
+    	cpc 	Zl,tmp
+    	breq 	UNDERFLOWDATA
+    	rjmp ShowScreen
+
+	
+UNDERFLOWDATA:
+		ldi zh,high(cant_pasos<<1)
+		ldi zl,low(cant_pasos<<1)
+		ld Yl,z+
+		ld Yh,z+
+		ldi zh,high(datos<<1)
+		ldi zl,low(datos<<1)
+		add zl,yl
+		adc zh,yh
+		rjmp ShowScreen
+		
+
+displongond:
+		ld arg,Z
+		push Zh
+		push Zl
+		clr rBin1H
+		mov rBin1L,arg
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		ldi tmp,5
+		ld	arg,Z+
+tsloop4:	
+		rcall LCD_putc
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		brne tsloop4
+ 		pop Zl
+ 		pop Zh
+		ret
+dispintensidad:
+		secondline
+
 		ret
 

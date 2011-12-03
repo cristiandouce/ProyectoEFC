@@ -55,7 +55,7 @@ SPI_Mtransmit:
 		out		SPDR, tmp
 		ret
 ;*****************************************************************
-;*	Recepcion de 'rtn' por SPI del SLAVE
+;*	Recepcion de 'tmp' por SPI del SLAVE
 ;*****************************************************************
 SPI_Mreceive:
 		in		tmp, SPDR
@@ -69,3 +69,103 @@ SPI_Wait:
 		sbrs 	tmp, SPIF
 		rjmp 	SPI_Wait
 		ret
+
+
+;*****************************************************************
+;*	Funciones de handle de la comunicacion SPI
+;*****************************************************************
+
+;* esto hay que meterlo en otro inc, asi como todo el
+;* codigo opciones del menu y manejarlo con includes
+SlaveSensorInit:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 's'
+
+		;*	Espero 1 segundo hasta que termine la lectura
+		rcall 	delay1s
+		ret
+SlavePrepMotorC:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 'p'
+
+		;*	Espero 1 segundo hasta que termine la lectura
+		rcall 	delay1s
+		ret
+PutSensorData:
+		;* cargo un contador para los 5 datos
+		ldi 	delay,102
+start:
+		;* Mando instruccion de lectura
+		;* y levanto el dato
+		SendInstruction 'd'
+		
+		;* Cargo el dato en argumento para llevar al lcd
+		mov		arg,tmp
+		clr Yh
+		mov Yl,arg
+		movw	rBin1H:rBin1L,Yh:Yl
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		
+		ld	arg,Z+
+		ld	arg,Z+
+		ldi tmp,3
+		ld	arg,Z+
+tsloop:	
+		rcall USART_Transmit
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		brne tsloop
+		ldi arg,','
+		rcall USART_Transmit
+
+		;* Decremento el contador
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		dec 	delay
+		brne 	start
+		ret
+
+GetMotorCount:
+		;* cargo un contador para los 5 datos
+		
+start3:
+		;* Mando instruccion de lectura
+		;* y levanto el dato
+		SendInstruction 'c'
+		mov dta,tmp
+		SendInstruction 'c'
+		mov dtal,tmp
+		;* Cargo el dato en argumento para llevar al lcd
+		ret
+
+SlaveMotorInit:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 'm'
+
+		;*	Espero 1 segundo hasta que termine la lectura
+		rcall 	delay1s
+		ret
+
+mot_down:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 'j'
+
+		;*	Espero 1 segundo hasta que termine la lectura
+		rjmp 	ShowScreen
+mot_up:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 'u'
+
+		;*	Espero 1 segundo hasta que termine la lectura
+		rjmp 	ShowScreen

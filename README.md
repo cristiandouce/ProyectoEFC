@@ -1,4 +1,4 @@
-# Proyecto EspectoFotoColorímetro
+# Proyecto EspectroFotoColorímetro
 ## Introducción
 
 

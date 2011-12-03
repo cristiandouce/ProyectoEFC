@@ -22,7 +22,10 @@
 ;*****************************************************************
 
 
-
+	.equ sclk=4
+	.equ sdin=1
+	.equ sdout=0
+	.equ control=PORTD
 
 ;*****************************************************************
 ;*****************************************************************
@@ -37,28 +40,25 @@
 ;*****************************************************************
 
 sensor_init:
-           cbi control,sclk
-	       cbi control,sdin
-		   ldi tmp,0x04
-	       out TCCR0B,tmp;divido la frecuencia por 256
-		   ldi tmp,0xE2
-	       out TCNT0,tmp; pongo el timer en -30
-	       rcall relojSensor
-		   ldi tmp,0x04
-	       out TCCR0B,tmp;divido la frecuencia por 256
-		   ldi tmp,0xF6;pongo el timer en -10
-		   out TCNT0,tmp
-		   sbi control,sdin
-		   rcall relojSensor
-		   rcall USART_Init;de ahora en mas no uso mas el clock manual sino el d la usart
-		   rcall sensor_reset
-		   ldi arg,0xFB; va a contar 5 clock
-		   rcall timer
-		   ;IMPORTANTE en la datasheet dice 1F,mientras q en el informe 5F,cualquier cosa se cambia
-		   ldi dta,0x1F;Write to mode register command;
-		   rcall send
-		   ldi dta,0x00;Clear mode register
-		   rcall send
+           rcall Usart_Init_especial
+           ldi dta,0xFF
+           ;le mando 16 todos unos
+           rcall USART_MSPIM_Transfer
+           ldi dta,0xFF
+           rcall USART_MSPIM_Transfer
+          
+           rcall sensor_reset
+           rcall sensor_reset
+           rcall sensor_reset
+
+	       ldi aux,4
+contando:  ldi dta,0xFF; va a contar 30 clock
+		   rcall USART_MSPIM_Transfer
+		   dec aux
+           brne contando
+		   
+		   rcall sensor_configuracion
+		   rcall delay200ms
 		   ret
 
 ;*****************************************************************
@@ -67,37 +67,92 @@ sensor_init:
 ;*	Configura ganancia/offset entre otros
 ;*****************************************************************
 sensor_configuracion:
+        ldi dta,0x3E;Write to mode register command;
+	    rcall USART_MSPIM_Transfer
+	    ldi dta,0xFE
+	    rcall USART_MSPIM_Transfer
+
+		ldi dta,0x00;Clear mode register
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
+
 ;In this example, we will set the gain to 0 and the offset to 0:
         ;Left offset
-		ldi dta,0x40
-		rcall send
+		ldi dta,0x80
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+		
 		ldi dta,0x00;
-		rcall send
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
+
+	
 		;Left gain
-		ldi dta,0x41 
-		rcall send
-		ldi dta,0x00
-		rcall send
-		;Middle offset
-		ldi dta,0x42
-		rcall send
+		ldi dta,0x82 
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+
+
 		ldi dta,0x00;
-		rcall send
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
+		;Middle offset
+		ldi dta,0x84
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
+
+
+		ldi dta,0x00;
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+		
 		;Middle gain
-		ldi dta,0x43
-		rcall send
-		ldi dta,0x00
-		rcall send
+
+
+		ldi dta,0x86
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
+		ldi dta,0x00;
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
 		;Right offset
-		ldi dta,0x44
-		rcall send
-		ldi dta,0x00
-		rcall send
+
+		ldi dta,0x88
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+
+		ldi dta,0x00;
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
+
 		;Right gain
-		ldi dta,0x45
-		rcall send
-        ldi dta,0x00
-        rcall send
+
+		ldi dta,0x8A
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+
+
+        ldi dta,0x00;
+		rcall USART_MSPIM_Transfer
+        ldi dta,0xFE
+        rcall USART_MSPIM_Transfer
 		ret
 
 ;*****************************************************************
@@ -105,10 +160,10 @@ sensor_configuracion:
 ;*	Rutina que resetea la configuracion del sensor.
 ;*	
 ;*****************************************************************
-sensor_reset: ldi dta,0x1B			;codigo dl reset
-              rcall USART_Transmit
-			  ldi arg,0xFA			;espero 6 pulsos de clock
-			  rcall timer
+sensor_reset: ldi dta,0x36			;codigo dl reset
+              rcall USART_MSPIM_Transfer
+			  ldi dta,0xFE
+			  rcall USART_MSPIM_Transfer	;espero 6 pulsos de clock
 			  ret
 
 
@@ -119,28 +174,24 @@ sensor_reset: ldi dta,0x1B			;codigo dl reset
 ;*****************************************************************
 sensor:
 
-		ldi arg,0xE2
-		rcall timer;hago un delay d como minimo un milisegundo
+		
+		rcall STARTint 
 		;Start integration
-		ldi dta,0x08
-		rcall send
-		ldi arg,0xEA;pulso sclk 22 veces
-		rcall timer
+		
 
-		ldi arg,0xF6;uso un tiempo d integracion d 2560us
+		ldi arg,0xFA;uso un tiempo d integracion d 2560us
 		rcall timer
 		;Detengo la integracion
-		ldi dta,0x10
-		rcall send
-		ldi arg,0xFB;pulso el sckl 5 veces
-		rcall timer
+		rcall SAMPLEinit
+		
 
 		;Start Pixel Readout
-		;To initiate readout from the TSL3301, send the Start Read command and wait for a start bit on SDOUT:
-		ldi dta,0x02
-		rcall send
+		rcall READpixel 
+		
 		;ahora recibo los pixeles por la usart
-		ldi aux,102;en realidad deberian ser 102
+		ldi key,102;
+		;DEFINIR ESE REGISTRO!!!
+
         
 ;mejorar esta parte con un ret antes y llamando
 ; a recibir independientemente del proceso del sensor
@@ -148,25 +199,16 @@ sensor:
 		;Le digo donde guardar los datos
 		ldi	Xl,LOW(var)
 		ldi Xh,HIGH(var)
-recibir:
-		rcall USART_Receive
-	    st X+,rtn;guardo el pixel en la variable var
-	    dec aux
-	    brne recibir
+        rcall cargo_bytes
+  
+		;rcall USART_Receive
+	    ;st X+,rtn;guardo el pixel en la variable var
+	    ;dec aux
+	    ;brne recibir
 		;Vuelvo X al principio
 		ldi	Xl,LOW(var)
 		ldi Xh,HIGH(var)
 		ret
-;*****************************************************************
-;*	"send"
-;*	Manda comandos al sensor.
-;*	Envia comandos desde 'dta' y espera el tiempo de recepcion.
-;*****************************************************************
-
-send:    rcall USART_Transmit
-		 ldi arg,0xFA
-		 rcall timer;espera 6 clock para q se procese la instruccion
-		 ret
 
 ;*****************************************************************
 ;*	"relojSensor"
@@ -182,3 +224,146 @@ relojSensor: sbi control,sclk
 			 ldi tmp,0x00
 	         out TCCR0B,tmp;apago el timer
 			 ret
+
+
+
+;###############################
+
+USART_Init_especial:
+
+	ldi tmp,0x00
+	sts UBRR0H,tmp
+	ldi tmp,0x0C; un baud rate de 4800 fosc=1MHz 
+	sts UBRR0L,tmp
+	ldi tmp,0b00100000; seteo el udre0
+	sts UCSR0A,tmp
+	ldi tmp,0b00011000;activo receptor y emisor
+	sts UCSR0B,tmp
+	ldi tmp,0b11000100;modo sincronico, 8 bits, sin bit d paridad
+	sts UCSR0C,tmp;con 2 solo bit d stop
+	ret
+;#####################################
+STARTint: 
+        ldi dta,0x10
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+
+		ldi dta,0xFF;pulso sclk 22 veces
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFF;
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFF
+		rcall USART_MSPIM_Transfer
+		ret
+
+;#################################################
+SAMPLEinit:
+        ldi dta,0x20
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+
+		ldi dta,0xFF;pulso el sckl 5 veces
+		rcall USART_MSPIM_Transfer
+		ret
+
+;#####################################################
+READpixel:		
+        ldi dta,0x04
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFE
+		rcall USART_MSPIM_Transfer
+
+
+		ldi dta,0xFF
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFF
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFF
+		rcall USART_MSPIM_Transfer
+		ldi dta,0xFF
+		rcall USART_MSPIM_Transfer;espero 38 pulsos de clock,porq sino me paso y espero 46
+		ret
+;############################################
+USART_MSPIM_Transfer:
+; Wait for empty transmit buffer
+lds tmp,UCSR0A
+sbrs tmp,UDRE0
+
+rjmp USART_MSPIM_Transfer
+
+; Put data (r16) into buffer, sends the data
+sts UDR0,dta
+
+; Wait for data to be received
+USART_MSPIM_Wait_RXCn:
+lds tmp,UCSR0A
+sbrs tmp, RXC0
+
+rjmp USART_MSPIM_Wait_RXCn
+
+; Get and return received data from buffer
+lds dta, UDR0
+ret		
+;####################################
+
+;##################################################################
+cargo_bytes:
+           ldi dta,0xFF
+           rcall USART_MSPIM_Transfer
+           clr aux
+           rcall funcion_comienzo
+           cpi rtn,9
+           breq cargo_bytes
+           ret
+  
+  ;#####################################
+funcion_comienzo:
+          ldi tmp,9
+          sec;set carry flag
+          clr rtn;cantidad de rotaciones
+seguir:   
+          inc rtn
+          ror dta
+          brcc llenar;llegue al bit de start
+          dec tmp
+          brne seguir
+fin:       
+          ret          
+llenar:
+       rcall c_bytes
+       ldi dta,0xFF
+       rcall USART_MSPIM_Transfer
+       rcall c_bytes
+       rcall saco2
+       dec key
+       brne llenar
+       ldi rtn,0;esto es para poder salir de cargo_bytes
+       rjmp fin                            
+
+c_bytes:
+       ldi arg,8
+       sub arg,rtn
+       cpi arg,0
+       breq pido_dato;en este caso el cero esta en el msb d dta
+       clr rtn
+rotation:
+        ror dta
+        ror aux;voy llenando
+        inc rtn
+        dec arg
+        brne rotation
+        ret       
+saco2:
+      ror dta
+      inc rtn
+      ror dta
+      inc rtn
+      st X+,aux
+      clr aux
+      ret
+ pido_dato:
+       ldi dta,0xFF
+       rcall USART_MSPIM_Transfer
+       rjmp llenar

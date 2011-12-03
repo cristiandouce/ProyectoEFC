@@ -54,11 +54,53 @@ SPI_Sinit:
 SPI_STC:
 		in dta,SPDR;guardo el byte q me mando
 		cpi dta,'s';me fijo si fue la orden 's'
-		breq PROCESS_CCD;y voy a hacer la rutina dl sensor
+		breq ReadSensor;y voy a hacer la rutina dl sensor
 		cpi dta,'d'
-		breq SENSOR_Data
-		cpi dta,'p';prueba de envio y recepcion en master
-		breq SENSOR_FAKE
-		
+		breq SendSensorData		
+		cpi dta,'p'
+		breq PrepMotorCount
+		cpi dta,'c'
+		breq SendMotorCount
+		cpi dta,'u'
+		breq MotorUp
+		cpi dta,'j'
+		breq MotorDown
+		cpi dta,'m'
+		breq return_interrupt
+
+
 return_interrupt:
 		reti
+
+ReadSensor:
+		ldi tmp,'w'
+		out	SPDR,tmp
+
+		rcall sensor
+		rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
+		rcall procesar_lectura
+		ldi	Xl,low(promedio)			;vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(promedio)
+		rjmp	return_interrupt
+
+MotorUp:
+		rcall stepback
+		rjmp return_interrupt
+MotorDown:
+		rcall stepforth
+		rjmp return_interrupt
+
+SendSensorData:
+		ld tmp,X
+		out SPDR,tmp
+		rjmp	return_interrupt	
+
+PrepMotorCount:
+		ldi xh,high(cant_pasos)
+		ldi xl,low(cant_pasos)
+		rjmp	return_interrupt	
+
+SendMotorCount:
+		ld tmp,X+
+		out SPDR,tmp
+		rjmp	return_interrupt	
