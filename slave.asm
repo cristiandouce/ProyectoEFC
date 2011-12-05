@@ -23,6 +23,7 @@
 	.include "asminc/m88def.inc"
 	.include "asminc/regs_alias.inc"
  	.include "asminc/motordef.inc"
+ 	.include "asminc/macros_slave.inc"
 ;defino constantes
 
 ; Por ahora incluidas en los respectivos archivos de include.
@@ -68,6 +69,11 @@ RESET:
 ;*	MAIN Program for microcontroller
 ;*****************************************************************
 MAIN:	
+		;seteo el prescaler para que divida por 4 la frec del cristal
+		ldi tmp,0x80
+		sts $0061,tmp
+		ldi tmp,0x02 
+		sts $0061,tmp
 		;* Inicio el SPI como SLAVE
 		cbi DDRD, 0;configuro RX como entrada
 		sbi	DDRD, 1; TX como salida
@@ -78,11 +84,10 @@ MAIN:
         out DDRC,tmp
         cbi DDRB,0
         cbi DDRB,1
-        cbi DDRB,6
-        cbi DDRB,6
+        cbi DDRC,5
         sbi PORTB,0
         sbi PORTB,1
-        sbi PORTB,6
+        sbi PORTC,5
 
         ;* Posicion inicial motor
         ldi tmp,low(posicion1<<1)
@@ -128,6 +133,9 @@ espera:
 	.include "asminc/sensor.inc"
 	.include "asminc/timer_slave.inc"
  	.include "asminc/motorcontrol.inc"
+ 	.include "asminc/eeprom.inc"
+
+
 
 
 

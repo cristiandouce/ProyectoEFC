@@ -17,3 +17,6 @@ program:
 
 hfuse:
 	avrdude -c usbtiny -p m88 -U hfuse:w:0xD7:m
+
+lfuse:
+	avrdude -c usbtiny -p m88 -U lfuse:w:0xC7:m

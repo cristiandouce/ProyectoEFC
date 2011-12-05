@@ -110,10 +110,10 @@ SendMotorCount:
 calibrar:
         clr Yh
         clr Yl
-        MoveCalibraTo(0);veo el estado d la calibracion 
+        MoveCalibraTo 0;veo el estado d la calibracion 
         rcall EEPROM_read 
         mov tmp,rtn
-        cpi tmp,0;significa q nunca lo calibre
+        cpi tmp,0;significa q antes calibre el segundo
         breq primera_calibracion
         cpi tmp,1;significa q hice la primera calibracion,hago la segunda
         breq segunda_calibracion
@@ -124,21 +124,22 @@ primera_calibracion:
         ;aca pedir ayuda dl macro,x ahora lo hago a mano
         clr Yh
         clr Yl
-        MoveCalibraTo(3)        
+        MoveCalibraTo 3        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
         ld tmp,X+
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo(4)
+        MoveCalibraTo 4
         ld tmp,X
         mov arg,tmp
         rcall EEPROM_write
 
 
-        MoveCalibraTo(0)
+        MoveCalibraTo 0
         ldi arg,1
         rcall EEPROM_write
+        rcall conversion
         rjmp return_interrupt
 
 segunda_calibracion:
@@ -146,18 +147,18 @@ segunda_calibracion:
         ;aca pedir ayuda dl macro,x ahora lo hago a mano
         clr Yh
         clr Yl
-        MoveCalibraTo(7)        
+        MoveCalibraTo 7        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
         ld tmp,X+
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo(8)  
+        MoveCalibraTo 8  
         ld tmp,X
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo(0)
-        ldi arg,2
+        MoveCalibraTo 0
+        ldi arg,0
         rcall EEPROM_write
         rcall conversion;una vez q tengo las dos calibraciones, busco la equivalencia entre pasos y longitudes d onda
         rjmp return_interrupt          

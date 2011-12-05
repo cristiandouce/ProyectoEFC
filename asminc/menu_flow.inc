@@ -77,7 +77,7 @@ jumper:
 		LoadWord
 		ijmp
 
-setandshow:
+setandshow:;revisar
 		movw	Yh:Yl,Xh:Xl
 		rjmp 	ShowScreen
 	

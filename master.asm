@@ -52,6 +52,11 @@ RESET:
 ;*	MAIN Program for microcontroller
 ;*****************************************************************
 MAIN:
+		;seteo el prescaler para que divida por 4 la frec del cristal
+		ldi tmp,0x80
+		sts $0061,tmp
+		ldi tmp,0x02 
+		sts $0061,tmp
 		;* Habilito el LCD
 		rcall	LCD_init
 

@@ -9,7 +9,7 @@
 ;*	"calibracion"
 ;*	Rutina que guarda la posicion del motor para la cual la intensidad es maxima
 ;*	Devuelve en la variable pos_max la posicion del motor para la cual la intensidad es maxima
-;   Utiliza los registros rtn,max,X,Y,Z
+;   Utiliza los registros r24,r25,rtn,max,X,Y
 
 ;*****************************************************************
 calibracion:
@@ -52,12 +52,12 @@ actualizar_maximo:
 lectura:
            clr Yh
            clr Yl
-           MoveCalibraTo(9);  
+           MoveCalibraTo 9;  
            rcall EEPROM_read 
            mov r1,rtn
-           MoveCalibraTo(10)
+           MoveCalibraTo 10
            rcall EEPROM_read 
-           ld r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
+           mov r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
                                 
 	   	     ldi Xl,low(cant_pasos)
            ldi Xh,high(cant_pasos)
@@ -74,7 +74,7 @@ sigo_midiendo:
             st X+,rtn
 x_pasos:
             rcall stepforth
-            delayY
+            rcall delayY
             sbiw Yh:Yl,1
             breq f
             sbiw r25:r24,1
@@ -92,18 +92,18 @@ f:      	ret
 conversion:
            clr Yh
            clr Yl
-           MoveCalibraTo(1);el primer valor d lambda  
+           MoveCalibraTo 1;el primer valor d lambda  
            rcall EEPROM_read 
            mov r1,rtn
-           MoveCalibraTo(2)
+           MoveCalibraTo 2
            rcall EEPROM_read 
-           ld r0,rtn;guardo en r1:r0 el valor de lambda 1
+           mov r0,rtn;guardo en r1:r0 el valor de lambda 1
 
 
-           MoveCalibraTo(5)
+           MoveCalibraTo 5
            rcall EEPROM_read 
            mov r3,rtn
-           MoveCalibraTo(6)
+           MoveCalibraTo 6
            rcall EEPROM_read
            mov r2,rtn;guardo en r3:r2 el valor de lambda 2
 
@@ -116,17 +116,17 @@ conversion:
            st X+,r1;guardo delta_lambda
            st X,r0
             
-           MoveCalibraTo(3) 
+           MoveCalibraTo 3 
            rcall EEPROM_read 
            mov r1,rtn
-           MoveCalibraTo(4) 
+           MoveCalibraTo 4 
            rcall EEPROM_read 
            mov r0,rtn;guardo en r1:r0 el valor de calibra 1
 
-           MoveCalibraTo(7) 
+           MoveCalibraTo 7 
            rcall EEPROM_read       
            mov  r3,rtn
-           MoveCalibraTo(8) 
+           MoveCalibraTo 8 
            rcall EEPROM_read       
            mov  r2,rtn;guardo en r3:r2 el valor de calibra 2
            
@@ -149,10 +149,10 @@ conversion:
            ld r2,X   
            rcall div16_16
            ;el resultado queda en  r3:r2
-           MoveCalibraTo(9) 
+           MoveCalibraTo 9 
            mov arg,r3
            rcall EEPROM_write
-           MoveCalibraTo(10) 
+           MoveCalibraTo 10 
            mov arg,r2
            rcall EEPROM_write
            ret
