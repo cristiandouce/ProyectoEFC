@@ -63,7 +63,10 @@ calibracion:
             clr Yl;
             clr max
                         
-cal:        rcall sensor;sensor me devuelve el valor procesado en rtn
+cal:        rcall sensor
+            rcall sensor_reset;dejo los pixels en cero para la prox medicion
+            rcall procesar_lectura
+            ;procesar_lectura me devuelve el valor procesado en rtn
             cp max,rtn
             brcs actualizar_maximo
 cont:       adiw Yh:Yl,1;incremento la posicion del vector
