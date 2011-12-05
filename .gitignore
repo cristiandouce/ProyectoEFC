@@ -1,3 +1,6 @@
 *.DBK
 *.PWI
 *.SDF
+*.obj
+*.hex
+*.cof
