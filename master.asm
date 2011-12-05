@@ -1,11 +1,11 @@
-/*
- * master.asm
- *
- *  Created: 03/12/2011 01:27:34 p.m.
+;/*
+; * master.asm
+; *
+; *  Created: 03/12/2011 01:27:34 p.m.
 
- *   Author: Nosotros...
+; *   Author: Nosotros...
 
- */ 
+; */ 
 
  ;*****************************************************************
 ;*	File: master.asm
@@ -23,7 +23,7 @@
 ;*
 ;*
 
-	.include "m88def.inc"
+	.include "asminc/m88def.inc"
 	.include "asminc/menudef.inc"
 	.include "asminc/regs_alias.inc"
 	.include "asminc/macros_master.inc"	
