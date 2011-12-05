@@ -1,9 +1,9 @@
-/*
- * slave.asm
- *
- *  Created: 03/12/2011 01:34:41 p.m.
- *   Author: Susana
- */ 
+;/*
+; * slave.asm
+; *
+; *  Created: 03/12/2011 01:34:41 p.m.
+; *   Author: Susana
+; */ 
  ;*****************************************************************
 ;*	File: slave.asm
 ;*	
@@ -20,7 +20,7 @@
 ;*
 ;*
 
-	.include "m88def.inc"
+	.include "asminc/m88def.inc"
 	.include "asminc/regs_alias.inc"
  	.include "asminc/motordef.inc"
 ;defino constantes
