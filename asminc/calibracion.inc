@@ -5,17 +5,17 @@
 ;*****************************************************************
 ;*****************************************************************
 
-.dseg
 
+
+cant_pasos:	.byte	2
 ;luego de inicializar el micro, cuenta los pasos del motor
 
 pos_max: .byte 2
 
-lambda1:     .byte   2
+lambda:     .byte   4
 ;deberia estar en el main y se va llenando con las llamadas 
 ;consecutivas a calibrar
 
-lambda2:     .byte  2
 
 delta_lambda: .byte 2
 
@@ -31,7 +31,6 @@ calibra2: .byte 2
  
 delta_paso: .byte 2
 
-.cseg
 
 ;****************************************************************
 ;*****************************************************************
@@ -58,21 +57,19 @@ delta_paso: .byte 2
 calibracion:
             ldi Xl,low(cant_pasos)
             ldi Xh,high(cant_pasos)
-            ld Zh,X+;asi estoy usando el puntero Z
-            ld Zl,X
-            clr Yh;parte alta de pos_max, éste es el puntero Y
-            clr Yl;parte de baja de pos_max
+            ld r25,X+;contador decremental
+            ld r24,X
+            clr Yh;contador incremental, da la posicion dl motor
+            clr Yl;
             clr max
                         
 cal:        rcall sensor;sensor me devuelve el valor procesado en rtn
-            rcall procesar_lectura
-
             cp max,rtn
             brcs actualizar_maximo
-cont:       adiw r29:r28,1;incremento la posicion del vector
+cont:       adiw Yh:Yl,1;incremento la posicion del vector
             rcall stepforth;avanzo un paso con el motor
             rcall delayY
-            sbiw r31:r30,1;disminuyo el contador
+            sbiw r25:r24,1;disminuyo el contador
             brne cal
              ret
 
@@ -80,8 +77,8 @@ actualizar_maximo:
             mov max,rtn
             ldi Xl,low(pos_max)
             ldi Xh,high(pos_max)
-            st X+,r29
-            st X,r28
+            st X+,Yh
+            st X,Yl
             rjmp cont
 
 ;*****************************************************************
@@ -93,8 +90,8 @@ actualizar_maximo:
 lectura:
  	   	      ldi Xl,low(cant_pasos)
             ldi Xh,high(cant_pasos)
-            ld r31,X+;guardo en z la cantidad de pasos
-            ld r30,X
+            ld Yh,X+;guardo en y la cantidad de pasos
+            ld Yl,X
         
             ldi Xl,low(mediciones)
             ldi Xh,high(mediciones)
@@ -104,11 +101,13 @@ sigo_midiendo:
        	    ldi tmp,16	 
 diez_pasos:
             rcall stepforth
+            delayY
+            sbiw Yh:Yl,1
+            breq f
             dec tmp
             brne diez_pasos
-       	    sbiw r31:r30,16
-       	    brne sigo_midiendo 
-      	ret
+       	    rjmp sigo_midiendo 
+f:      	ret
 
  ;*****************************************************************
 ;*	"conversion"
@@ -118,12 +117,10 @@ diez_pasos:
 ;*	
 ;*****************************************************************
 conversion:
-           ldi Xl,low(lambda1)
-           ldi Xh,high(lambda1) 
+           ldi Xl,low(lambda)
+           ldi Xh,high(lambda) 
            ld r1,X+
-           ld r0,X;guardo en r1:r0 el valor de lambda 1
-           ldi Xl,low(lambda2)
-           ldi Xh,high(lambda2)
+           ld r0,X+;guardo en r1:r0 el valor de lambda 1
            ld r3,X+
            ld r2,X;guardo en r3:r2 el valor de lambda 2
 
@@ -133,12 +130,12 @@ conversion:
            ldi Xl,low(delta_lambda)
            ldi Xh,high(delta_lambda)
            ldi tmp,4
-multiplicar:
+multiplicar_por_16:
            lsl r0;Multiply r1:r0 by two
            rol r1
            dec tmp
-           brne multiplicar 
-
+           brne multiplicar_por_16
+           ;
            st X+,r1;guardo el valor multiplicado x 16
            st X,r0
 
