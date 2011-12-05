@@ -52,7 +52,7 @@ SPI_Sinit:
 ;*	Operaciones de las Interrupciones
 ;*****************************************************************
 SPI_STC:
-		in dta,SPDR;guardo el byte q me mando
+        in dta,SPDR;guardo el byte q me mando
 		cpi dta,'s';me fijo si fue la orden 's'
 		breq ReadSensor;y voy a hacer la rutina dl sensor
 		cpi dta,'d'
@@ -67,6 +67,8 @@ SPI_STC:
 		breq MotorDown
 		cpi dta,'m'
 		breq return_interrupt
+		cpi dta,'a';hago la calibracion
+		breq calibrar
 
 
 return_interrupt:
@@ -78,8 +80,7 @@ ReadSensor:
 
 		rcall sensor
 		rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
-		rcall procesar_lectura
-		ldi	Xl,low(promedio)			;vuelvo a hacer q apunte al comienzo
+		ldi	Xl,low(promedio);vuelvo a hacer q apunte al comienzo
 	    ldi	Xh,high(promedio)
 		rjmp	return_interrupt
 
@@ -105,3 +106,58 @@ SendMotorCount:
 		ld tmp,X+
 		out SPDR,tmp
 		rjmp	return_interrupt	
+
+calibrar:
+        clr Yh
+        clr Yl
+        MoveCalibraTo(0);veo el estado d la calibracion 
+        rcall EEPROM_read 
+        mov tmp,rtn
+        cpi tmp,0;significa q nunca lo calibre
+        breq primera_calibracion
+        cpi tmp,1;significa q hice la primera calibracion,hago la segunda
+        breq segunda_calibracion
+        rjmp return_interrupt;sino, no tengo nada q calibrar
+
+primera_calibracion:
+        rcall calibracion
+        ;aca pedir ayuda dl macro,x ahora lo hago a mano
+        clr Yh
+        clr Yl
+        MoveCalibraTo(3)        
+        ldi Xh,high(pos_max)
+        ldi Xl,low(pos_max)
+        ld tmp,X+
+        mov arg,tmp
+        rcall EEPROM_write
+        MoveCalibraTo(4)
+        ld tmp,X
+        mov arg,tmp
+        rcall EEPROM_write
+
+
+        MoveCalibraTo(0)
+        ldi arg,1
+        rcall EEPROM_write
+        rjmp return_interrupt
+
+segunda_calibracion:
+        rcall calibracion
+        ;aca pedir ayuda dl macro,x ahora lo hago a mano
+        clr Yh
+        clr Yl
+        MoveCalibraTo(7)        
+        ldi Xh,high(pos_max)
+        ldi Xl,low(pos_max)
+        ld tmp,X+
+        mov arg,tmp
+        rcall EEPROM_write
+        MoveCalibraTo(8)  
+        ld tmp,X
+        mov arg,tmp
+        rcall EEPROM_write
+        MoveCalibraTo(0)
+        ldi arg,2
+        rcall EEPROM_write
+        rcall conversion;una vez q tengo las dos calibraciones, busco la equivalencia entre pasos y longitudes d onda
+        rjmp return_interrupt          

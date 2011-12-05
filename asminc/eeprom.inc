@@ -26,7 +26,7 @@
 ;*****************************************************************
 ;*	"EEPROM_write"
 ;*	Escribe en memoria EEPROM.
-;*	Recive en Yh:Yl la direccion sobre la cual escribir
+;*	Recibe en Yh:Yl la direccion sobre la cual escribir
 ;* 	y guarda el valor transportado dentro de 'arg'
 ;*****************************************************************
 

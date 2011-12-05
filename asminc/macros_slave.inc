@@ -6,7 +6,7 @@
 	;* 2byte calibra1 			(su posicion de motor)
 	;* 2byte lambda2 			(segundo valor de lambda)
 	;* 2byte calibra2	(su posicion de motor)
-	;* 1byte deltaPasoXlambda 	(cuantos pasos para aumentar lambda en 1??)
+	;* 2byte deltaPasoXlambda 	(cuantos pasos para aumentar lambda en 1??)
 	;* 2byte posMinLambda 		(400||200 segun como lo quieran, minimo de sensor)
 	;*							(o minimo espectro visible???)
 

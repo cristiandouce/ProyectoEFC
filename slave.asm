@@ -32,10 +32,14 @@
 ;Defino las variables
 	.dseg
 		.org 0x200
+		
+	pos_max:    .byte 2
+ delta_paso:    .byte 2
+ delta_lambda:  .byte 2
 		var:	.byte	120
  cant_pasos:	.byte   2
  promedio: 		.byte 	1
-
+mediciones:     .byte 400
 	.cseg
 		.org 0x0000
 		rjmp RESET
@@ -105,7 +109,7 @@ MAIN:
 
 		;* Inicio y configuro el Sensor
 		rcall sensor_Init
-		;rcall sensor_configuracion
+		
 
 		;* Espero instrucciones del master
 		ldi	Xl,low(cant_pasos)
@@ -121,7 +125,6 @@ espera:
 	.include "asminc/calibracion.inc"
 	.include "asminc/common.inc"		
 	.include "asminc/spi_slave.inc"
-	.include "asminc/procesar_lectura.inc"
 	.include "asminc/sensor.inc"
 	.include "asminc/timer_slave.inc"
  	.include "asminc/motorcontrol.inc"

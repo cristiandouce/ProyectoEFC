@@ -1,46 +1,4 @@
-
-;****************************************************************
-;*****************************************************************
-;*       Definición de variables utilizadas
-;*****************************************************************
-;*****************************************************************
-
-
-
-cant_pasos:	.byte	2
-;luego de inicializar el micro, cuenta los pasos del motor
-
-pos_max: .byte 2
-
-lambda:     .byte   4
-;deberia estar en el main y se va llenando con las llamadas 
-;consecutivas a calibrar
-
-
-delta_lambda: .byte 2
-
-mediciones:  .byte 500
-;preguntar cuantos valores guardar,esto seria cada 16 pasos
-
-
-
-
-calibra1: .byte 2
-
-calibra2: .byte 2
  
-delta_paso: .byte 2
-
-
-;****************************************************************
-;*****************************************************************
-;*       Definición de registros utilizadas
-;*****************************************************************
-;*****************************************************************
-
-
- .def max=r0; no esta definido asi q lo puedo usar :D
-   
 ;****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con ESPECTROFOTOCOLIMETRO
@@ -63,10 +21,10 @@ calibracion:
             clr Yl;
             clr max
                         
-cal:        rcall sensor
-            rcall sensor_reset;dejo los pixels en cero para la prox medicion
-            rcall procesar_lectura
-            ;procesar_lectura me devuelve el valor procesado en rtn
+cal:        
+            rcall sensor_reset
+            rcall sensor;me devuelve el valor procesado en rtn
+                   
             cp max,rtn
             brcs actualizar_maximo
 cont:       adiw Yh:Yl,1;incremento la posicion del vector
@@ -74,7 +32,8 @@ cont:       adiw Yh:Yl,1;incremento la posicion del vector
             rcall delayY
             sbiw r25:r24,1;disminuyo el contador
             brne cal
-             ret
+
+            ret
 
 actualizar_maximo:
             mov max,rtn
@@ -91,24 +50,35 @@ actualizar_maximo:
 ;*	Toma los valores cada dieciseis pasos del motor
 ;*****************************************************************
 lectura:
- 	   	      ldi Xl,low(cant_pasos)
-            ldi Xh,high(cant_pasos)
-            ld Yh,X+;guardo en y la cantidad de pasos
-            ld Yl,X
+           clr Yh
+           clr Yl
+           MoveCalibraTo(9);  
+           rcall EEPROM_read 
+           mov r1,rtn
+           MoveCalibraTo(10)
+           rcall EEPROM_read 
+           ld r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
+                                
+	   	     ldi Xl,low(cant_pasos)
+           ldi Xh,high(cant_pasos)
+           ld Yh,X+;guardo en y la cantidad de pasos
+           ld Yl,X
         
-            ldi Xl,low(mediciones)
-            ldi Xh,high(mediciones)
+           ldi Xl,low(mediciones)
+           ldi Xh,high(mediciones)
 sigo_midiendo: 
+            mov r25,r1
+            mov r24,r0
+            rcall sensor_reset
             rcall sensor
             st X+,rtn
-       	    ldi tmp,16	 
-diez_pasos:
+x_pasos:
             rcall stepforth
             delayY
             sbiw Yh:Yl,1
             breq f
-            dec tmp
-            brne diez_pasos
+            sbiw r25:r24,1
+            brne x_pasos
        	    rjmp sigo_midiendo 
 f:      	ret
 
@@ -120,36 +90,45 @@ f:      	ret
 ;*	
 ;*****************************************************************
 conversion:
-           ldi Xl,low(lambda)
-           ldi Xh,high(lambda) 
-           ld r1,X+
-           ld r0,X+;guardo en r1:r0 el valor de lambda 1
-           ld r3,X+
-           ld r2,X;guardo en r3:r2 el valor de lambda 2
+           clr Yh
+           clr Yl
+           MoveCalibraTo(1);el primer valor d lambda  
+           rcall EEPROM_read 
+           mov r1,rtn
+           MoveCalibraTo(2)
+           rcall EEPROM_read 
+           ld r0,rtn;guardo en r1:r0 el valor de lambda 1
+
+
+           MoveCalibraTo(5)
+           rcall EEPROM_read 
+           mov r3,rtn
+           MoveCalibraTo(6)
+           rcall EEPROM_read
+           mov r2,rtn;guardo en r3:r2 el valor de lambda 2
 
            rcall resta
            ;esta funcion resta los dos y me devuelve el valor absoluto en r1:r0
            
            ldi Xl,low(delta_lambda)
            ldi Xh,high(delta_lambda)
-           ldi tmp,4
-multiplicar_por_16:
-           lsl r0;Multiply r1:r0 by two
-           rol r1
-           dec tmp
-           brne multiplicar_por_16
-           ;
-           st X+,r1;guardo el valor multiplicado x 16
+           
+           st X+,r1;guardo delta_lambda
            st X,r0
+            
+           MoveCalibraTo(3) 
+           rcall EEPROM_read 
+           mov r1,rtn
+           MoveCalibraTo(4) 
+           rcall EEPROM_read 
+           mov r0,rtn;guardo en r1:r0 el valor de calibra 1
 
-           ldi Xl,low(calibra1)
-           ldi Xh,high(calibra1) 
-           ld r1,X+
-           ld r0,X;guardo en r1:r0 el valor de calibra 1
-           ldi Xl,low(calibra2)
-           ldi Xh,high(calibra2)
-           ld r3,X+
-           ld r2,X;guardo en r3:r2 el valor de calibra 2
+           MoveCalibraTo(7) 
+           rcall EEPROM_read       
+           mov  r3,rtn
+           MoveCalibraTo(8) 
+           rcall EEPROM_read       
+           mov  r2,rtn;guardo en r3:r2 el valor de calibra 2
            
            rcall resta  
            ;me devuelve el valor absoluto en r1:r0
@@ -158,22 +137,25 @@ multiplicar_por_16:
            st X+,r1
            st X,r0
 
-            ;ahora hago la regla de 3 simple, tengo q dividir delta_lambda/delta_paso
+           ;ahora hago la regla de 3 simple, tengo q dividir delta_paso/delta_lambda
             
-            ldi Xl,low(delta_lambda)
-            ldi Xh,high(delta_lambda)
-            ld r1,X+
-            ld r0,X
-            ldi Xl,low(delta_paso)
-            ldi Xh,high(delta_paso)
-            ld r3,X+
-            ld r2,X   
-            rcall div16_16
-            ;el resultado queda en  r3:r2
-            ;como me va a quedar un numero de un byte 
-            ;descarto el byte alto
-            mov rtn,r2
-            ret
+           ldi Xl,low(delta_paso)
+           ldi Xh,high(delta_paso)
+           ld r1,X+
+           ld r0,X
+           ldi Xl,low(delta_lambda)
+           ldi Xh,high(delta_lambda)
+           ld r3,X+
+           ld r2,X   
+           rcall div16_16
+           ;el resultado queda en  r3:r2
+           MoveCalibraTo(9) 
+           mov arg,r3
+           rcall EEPROM_write
+           MoveCalibraTo(10) 
+           mov arg,r2
+           rcall EEPROM_write
+           ret
 
  ;***************************************************************************************************************************************  
  ;*****************************************************************

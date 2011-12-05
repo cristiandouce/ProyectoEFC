@@ -21,7 +21,7 @@
 ;*	ALIAS DE REGISTROS
 ;*****************************************************************
 
-	
+	.def    max     =    r0
 	.def	low_suma=	 r2
 	.def	high_suma=	 r3
 	.def	rBin1L	=	 r6
