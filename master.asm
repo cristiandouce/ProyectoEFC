@@ -50,7 +50,7 @@ MAIN:
 		sts $0061,tmp
 
 		cbi DDRC,5 ;Seteo SlaveStatus como entrada
-
+		sbi PORTC,5
 		
 		;* Habilito el LCD
 		rcall	LCD_init

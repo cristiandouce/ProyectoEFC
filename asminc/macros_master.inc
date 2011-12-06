@@ -54,7 +54,29 @@
 		;SPI Wait for slave to end
 		rcall SPI_WAIT_FOR_SLAVE
 	.ENDMACRO
+	.MACRO	SendData
+		;* Cargo la instruccion a enviar en 'tmp'
+		mov tmp,@0
 
+		;Transmito instruccion y espero
+		SPI_START
+		rcall SPI_Mtransmit
+		rcall SPI_Wait
+		SPI_STOP
+
+		;* Cargo NULL para no afectar Slave
+		ldi tmp,0
+
+		;* Transmito, espero y Recibo del buffer
+		SPI_START
+		rcall SPI_Mtransmit
+		rcall SPI_Wait
+		rcall SPI_Mreceive
+		SPI_STOP
+
+		;SPI Wait for slave to end
+		rcall SPI_WAIT_FOR_SLAVE
+	.ENDMACRO
 	.MACRO	LoadstringZ 		;*	Cargo string en Z
 		ldi		Zh,high(@0<<1)
 		ldi		Zl,low(@0<<1)

@@ -208,13 +208,40 @@ Lambda_Ret:
 		ldi 	zh,high(valor_lambda<<1)
 		st 		z+,yh
 		st 		z,yl
-		ldi		Xh,high(BusyC<<1)
-		ldi		Xl,low(BusyC<<1)
-		rjmp 	ShowScreen
+		rjmp 	comunicateA
 idle:
 		ret
 
-		
+comunicateA:
+		rcall SendLambda
+		ldi arg,'c'
+		rcall USART_Transmit
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'l'
+		rcall USART_Transmit
+		ldi arg,'i'
+		rcall USART_Transmit
+		ldi arg,'b'
+		rcall USART_Transmit
+		ldi arg,'r'
+		rcall USART_Transmit
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'d'
+		rcall USART_Transmit
+		ldi arg,'o'
+		rcall USART_Transmit
+		ldi arg,'!'
+		rcall USART_Transmit
+		ldi arg,'!'
+		rcall USART_Transmit
+		ldi arg,'!'
+		rcall USART_Transmit
+		ldi		Xh,high(Calibra<<1)
+		ldi		Xl,low(Calibra<<1)
+		rjmp 	ShowScreen
+
 comunicateC:		
 		SetLcdClearAtHome
 		rcall SlaveSensorInit

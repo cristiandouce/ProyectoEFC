@@ -52,8 +52,10 @@ SPI_Sinit:
 ;*	Operaciones de las Interrupciones
 ;*****************************************************************
 SPI_STC:
-		cbi PortC,4
-        in dta,SPDR;guardo el byte q me mando
+		in dta,SPDR;guardo el byte q me mando
+		sbi PortC,4
+        cpi fla,0
+        brne savelambdah
 		cpi dta,'s';me fijo si fue la orden 's'
 		breq ReadSensor;y voy a hacer la rutina dl sensor
 		cpi dta,'d'
@@ -69,12 +71,22 @@ SPI_STC:
 		cpi dta,'m'
 		breq return_interrupt
 		cpi dta,'a';hago la calibracion
-		breq calibrar
+		breq preparacalibrar
 
 
 return_interrupt:
-		sbi PortC,4
+		cbi PortC,4
 		reti
+
+savelambdah:
+		cpi fla,1
+		breq savelambdal
+		mov lambdah,dta
+		rjmp calibrar
+
+savelambdal:
+		mov lambdal,dta
+		rjmp return_interrupt
 
 ReadSensor:
 		ldi tmp,'w'
@@ -108,6 +120,9 @@ SendMotorCount:
 		ld tmp,X+
 		out SPDR,tmp
 		rjmp	return_interrupt	
+preparacalibrar:
+		ldi 	fla,2
+		rjmp return_interrupt;sino, no tengo nada q calibrar
 
 calibrar:
         clr Yh

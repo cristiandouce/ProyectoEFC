@@ -98,6 +98,12 @@ SlavePrepMotorC:
 		;*	Espero 1 segundo hasta que termine la lectura
 		rcall 	delay1s
 		ret
+SendLambda:
+		;*	Mando al slave para que inicie la se prepare a leer lambda
+		SendInstruction 'a'
+		SendData Xh
+		SendData Xl
+		ret
 
 
 PutSensorData:
@@ -166,6 +172,8 @@ SlaveMotorInit:
 		;*	Espero 1 segundo hasta que termine la lectura
 		rcall 	delay1s
 		ret
+
+
 
 mot_down:
 		;*	Mando al slave para que inicie la lectura del sensor
