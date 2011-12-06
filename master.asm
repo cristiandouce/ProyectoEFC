@@ -1,13 +1,4 @@
-;/*
-; * master.asm
-; *
-; *  Created: 03/12/2011 01:27:34 p.m.
-
-; *   Author: Nosotros...
-
-; */ 
-
- ;*****************************************************************
+;*****************************************************************
 ;*	File: master.asm
 ;*	
 ;*	Espectrofotocolorimetro Microcontrolador MASTER
