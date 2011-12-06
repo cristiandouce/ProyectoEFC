@@ -39,7 +39,7 @@
 SPI_Sinit:
 		;*	Set MISO output, all others input
 		sbi DDRB,pMISO
-		sbi	DDRB,pCSS
+		;sbi	DDRB,pCSS
 		;*	Habilita SPI, como SLAVE
 		ldi r17,cnf_slv
 		out SPCR,r17
@@ -52,7 +52,7 @@ SPI_Sinit:
 ;*	Operaciones de las Interrupciones
 ;*****************************************************************
 SPI_STC:
-		cbi PortC,4
+		;cbi PortC,4
         in dta,SPDR;guardo el byte q me mando
 		cpi dta,'s';me fijo si fue la orden 's'
 		breq ReadSensor;y voy a hacer la rutina dl sensor
@@ -73,7 +73,7 @@ SPI_STC:
 
 
 return_interrupt:
-		sbi PortC,4
+		;sbi PortC,4
 		reti
 
 ReadSensor:
