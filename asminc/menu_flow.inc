@@ -213,6 +213,8 @@ Lambda_Ret:
 		rjmp 	ShowScreen
 idle:
 		ret
+
+		
 comunicateC:		
 		SetLcdClearAtHome
 		rcall SlaveSensorInit

@@ -45,8 +45,8 @@ testpasos:
 				; cuento los pasos en el camino
 iniciarmotor2:	rcall 	stepback
 				rcall 	delayY
-				in 		tmp, PINB
-				ldi 	aux, 0b01000000
+				in 		tmp, PINC
+				ldi 	aux, 0b00100000
 				and 	tmp, aux
 				cpi 	tmp, 0
 				breq 	terminarmotor

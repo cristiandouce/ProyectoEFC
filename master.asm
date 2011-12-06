@@ -57,6 +57,10 @@ MAIN:
 		sts $0061,tmp
 		ldi tmp,0x02 
 		sts $0061,tmp
+
+		cbi DDRC,5 ;Seteo SlaveStatus como entrada
+
+		
 		;* Habilito el LCD
 		rcall	LCD_init
 

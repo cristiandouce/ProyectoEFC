@@ -70,7 +70,12 @@ SPI_Wait:
 		rjmp 	SPI_Wait
 		ret
 
-
+SPI_WAIT_FOR_SLAVE:
+		in 		tmp,PINC
+		ldi 	aux,0b00100000
+		and 	tmp,aux
+		brne	SPI_WAIT_FOR_SLAVE ;Cuando esta en cero sigo de largo
+		ret
 ;*****************************************************************
 ;*	Funciones de handle de la comunicacion SPI
 ;*****************************************************************
@@ -84,6 +89,8 @@ SlaveSensorInit:
 		;*	Espero 1 segundo hasta que termine la lectura
 		rcall 	delay1s
 		ret
+
+		
 SlavePrepMotorC:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'p'
@@ -91,6 +98,8 @@ SlavePrepMotorC:
 		;*	Espero 1 segundo hasta que termine la lectura
 		rcall 	delay1s
 		ret
+
+
 PutSensorData:
 		;* cargo un contador para los 5 datos
 		ldi 	delay,102

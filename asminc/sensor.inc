@@ -179,7 +179,7 @@ sensor:
 		;Start integration
 		
 
-		ldi arg,0xFA;uso un tiempo d integracion d 2560us
+		ldi arg,0xFE;uso un tiempo d integracion d 2560us
 		rcall timer
 		;Detengo la integracion
 		rcall SAMPLEinit

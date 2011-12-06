@@ -78,6 +78,9 @@ MAIN:
 		cbi DDRD, 0;configuro RX como entrada
 		sbi	DDRD, 1; TX como salida
 		sbi DDRD,4; XCK como salida,master mode
+		
+		sbi DDRC,4 ;configuro SlaveStatus como salida
+
 
 		;* Y ESTO??? COMMENTS PLEASE!!!
         ldi tmp,0b00001111

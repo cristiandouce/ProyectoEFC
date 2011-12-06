@@ -46,7 +46,7 @@ USART_Init:
 	ldi tmp,0x0C;
 	sts UBRR0L,tmp
 	; Sets Buffer Free and U2X0 to 1
-	ldi tmp,0b00100000
+	ldi tmp,0b00100010
 	sts UCSR0A,tmp
 	; Set TXEN
 	ldi tmp,0b00011000
