@@ -39,7 +39,7 @@
 SPI_Sinit:
 		;*	Set MISO output, all others input
 		sbi DDRB,pMISO
-		sbi	DDRB,pCSS
+		;sbi	DDRB,pCSS
 		;*	Habilita SPI, como SLAVE
 		ldi r17,cnf_slv
 		out SPCR,r17

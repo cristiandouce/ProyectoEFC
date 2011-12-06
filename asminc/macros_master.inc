@@ -52,7 +52,7 @@
 		SPI_STOP
 
 		;SPI Wait for slave to end
-		rcall SPI_WAIT_FOR_SLAVE
+		;rcall SPI_WAIT_FOR_SLAVE
 	.ENDMACRO
 	.MACRO	SendData
 		;* Cargo la instruccion a enviar en 'tmp'
