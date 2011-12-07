@@ -1,7 +1,4 @@
-
-
- 
-;****************************************************************
+;***************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con ESPECTROFOTOCOLIMETRO
 ;*****************************************************************
@@ -52,18 +49,42 @@ actualizar_maximo:
 ;*	Toma los valores cada dieciseis pasos del motor
 ;*****************************************************************
 lectura:
-           MoveCalibraTo 9;  
+           MoveCalibraTo posMinLambdaHigh  
            rcall EEPROM_read 
-           mov r1,rtn
-           MoveCalibraTo 10
+           mov r25,rtn
+           mov r3,rtn
+
+           MoveCalibraTo posMinLambdaLow
            rcall EEPROM_read 
-           mov r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
+           mov r24,rtn;guardo en r1:r0 la cantidad de pasos que equivalen 
+           mov r2,rtn
+voy_al_comienzo:
+           rcall stepforth
+           rcall delayY
+           sbiw r25:r24,1
+           brne voy_al_comienzo
+                 
+          
+           
                                 
 	   	     ldi Xl,low(cant_pasos)
            ldi Xh,high(cant_pasos)
            ld Yh,X+;guardo en y la cantidad de pasos
            ld Yl,X
-        
+           mov r1,Yh
+           mov r0,Yl
+           rcall resta
+           mov Yh,r1
+           mov Yl,r0
+
+           MoveCalibraTo deltaPasoXlambdaHigh;  
+           rcall EEPROM_read 
+           mov r1,rtn
+           MoveCalibraTo deltaPasoXlambdaLow
+           rcall EEPROM_read 
+           mov r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
+
+
            ldi Xl,low(mediciones)
            ldi Xh,high(mediciones)
 sigo_midiendo: 
@@ -90,20 +111,18 @@ f:      	ret
 ;*	
 ;*****************************************************************
 conversion:
-           clr Yh
-           clr Yl
-           MoveCalibraTo 1;el primer valor d lambda  
+           MoveCalibraTo lambda1High;el primer valor d lambda  
            rcall EEPROM_read 
            mov r1,rtn
-           MoveCalibraTo 2
+           MoveCalibraTo lambda1Low
            rcall EEPROM_read 
            mov r0,rtn;guardo en r1:r0 el valor de lambda 1
 
 
-           MoveCalibraTo 5
+           MoveCalibraTo lambda2High 
            rcall EEPROM_read 
            mov r3,rtn
-           MoveCalibraTo 6
+           MoveCalibraTo lambda2Low
            rcall EEPROM_read
            mov r2,rtn;guardo en r3:r2 el valor de lambda 2
 
@@ -116,17 +135,17 @@ conversion:
            st X+,r1;guardo delta_lambda
            st X,r0
             
-           MoveCalibraTo 3 
+           MoveCalibraTo calibra1High
            rcall EEPROM_read 
            mov r1,rtn
-           MoveCalibraTo 4 
+           MoveCalibraTo calibra1Low
            rcall EEPROM_read 
            mov r0,rtn;guardo en r1:r0 el valor de calibra 1
 
-           MoveCalibraTo 7 
+           MoveCalibraTo calibra2High 
            rcall EEPROM_read       
            mov  r3,rtn
-           MoveCalibraTo 8 
+           MoveCalibraTo calibra2Low
            rcall EEPROM_read       
            mov  r2,rtn;guardo en r3:r2 el valor de calibra 2
            
@@ -149,12 +168,16 @@ conversion:
            ld r2,X   
            rcall div16_16
            ;el resultado queda en  r3:r2
-           MoveCalibraTo 9 
+           MoveCalibraTo deltaPasoXlambdaHigh
            mov arg,r3
            rcall EEPROM_write
-           MoveCalibraTo 10 
+           MoveCalibraTo deltaPasoXlambdaLow
            mov arg,r2
            rcall EEPROM_write
+           
+           rcall buscoposmin
+
+
            ret
 
  ;***************************************************************************************************************************************  
@@ -266,4 +289,72 @@ continuar:
 setear: 
        sec
        rjmp continuar
-;/******************************************************************/       
+;/******************************************************************/   
+
+buscoposmin:
+           MoveCalibraTo calibra1High
+           rcall EEPROM_read 
+           mov r6,rtn
+           MoveCalibraTo calibra1Low
+           rcall EEPROM_read 
+           mov r7,rtn;guardo en r1:r0 el valor de calibra1
+           
+           MoveCalibraTo lambda1High;el primer valor d lambda  
+           rcall EEPROM_read 
+           mov r3,rtn
+           MoveCalibraTo lambda1Low
+           rcall EEPROM_read 
+           mov r2,rtn;guardo en r1:r0 el valor de lambda 1         
+           
+           MoveCalibraTo deltaPasoXlambdaHigh
+           rcall EEPROM_read
+           mov r25,rtn
+           MoveCalibraTo deltaPasoXlambdaLow
+           rcall EEPROM_read
+           mov r24,rtn 
+           
+comparacion:
+           ldi tmp,0x01
+           mov r1,tmp
+           ldi tmp,0x90
+           mov r0,tmp;
+           ;r3:r2 contienen el valor d lambda1
+           ;al que resto 400(0x0190)
+           rcall resta
+           ;el resultado me quedo en r1:r0
+sigo:
+           rcall sumar_a_si_mismo
+           ;r25:r24 contiene el deltapasoporlambda
+           sbiw r25:r24,1
+comparo_p_alta:
+           cpi  r25,0
+           brne  sigo
+           
+comparo_p_baja:
+           cpi r24,0
+           brne sigo           
+es_cero:  
+          ; en r7:r6 tengo el valor de calibra1
+          mov r3,r7
+          mov r2,r6
+
+          ;se lo resto a deltapasostotales
+          rcall resta
+
+          ;despues de restar lo guardo en eeprom
+          MoveCalibraTo posMinLambdaHigh
+          mov arg,r1
+          rcall EEPROM_write
+          MoveCalibraTo posMinLambdaLow
+          mov arg,r0
+          rcall EEPROM_write 
+          ret            
+
+
+
+sumar_a_si_mismo:
+         add r0,r0
+         adc r1,r1
+         ret 
+
+                               

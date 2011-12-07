@@ -30,7 +30,15 @@
     .equ    calibra1High = 3
     .equ    calibra1Low = 4
     .equ    calibra2High =7
-    .equ   calibra2Low = 8
+    .equ    calibra2Low = 8
+    .equ    lambda1High = 1
+    .equ    lambda1Low = 2
+    .equ    lambda2High = 5
+    .equ    lambda2Low = 6
+    .equ    deltaPasoXlambdaHigh=9
+    .equ    deltaPasoXlambdaLow=10
+    .equ    posMinLambdaHigh=11
+    .equ    posMinLambdaLow=12 
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con SPI
@@ -134,7 +142,7 @@ savelambdal:
         mov lambdal,dta
         dec fla
 		rjmp return_interrupt
-		;rjmp calibrar
+		rjmp calibrar
 
 ReadSensor:
 		ldi tmp,'w'
@@ -142,8 +150,8 @@ ReadSensor:
 
 		rcall sensor
 		rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
-		ldi	Xl,low(promedio);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(promedio)
+		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(var)
 		rjmp	return_interrupt
 
 MotorUp:
@@ -154,7 +162,7 @@ MotorDown:
 		rjmp return_interrupt
 
 SendSensorData:
-		ld tmp,X
+		ld tmp,X+
 		out SPDR,tmp
 		rjmp	return_interrupt	
 
@@ -183,10 +191,17 @@ calibrar:
         rjmp return_interrupt;sino, no tengo nada q calibrar
 
 primera_calibracion:
+         MoveCalibraTo lambda1High
+         mov arg,lambdah
+         rcall EEPROM_write
+         
+         MoveCalibraTo lambda1Low
+         mov arg,lambdal
+         rcall EEPROM_write        
+
         rcall calibracion
         ;aca pedir ayuda dl macro,x ahora lo hago a mano
-        clr Yh
-        clr Yl
+        
         MoveCalibraTo calibra1High        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
@@ -206,16 +221,24 @@ primera_calibracion:
         rjmp return_interrupt
 
 segunda_calibracion:
+        MoveCalibraTo lambda2High
+        mov arg,lambdah
+        rcall EEPROM_write
+         
+        MoveCalibraTo lambda2Low
+        mov arg,lambdal
+        rcall EEPROM_write   
+
         rcall calibracion
-        ;aca pedir ayuda dl macro,x ahora lo hago a mano
-        clr Yh
-        clr Yl
-        MoveCalibraTo calibra2High        
+        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
+        
+        MoveCalibraTo calibra2High        
         ld tmp,X+
         mov arg,tmp
         rcall EEPROM_write
+
         MoveCalibraTo calibra2Low  
         ld tmp,X
         mov arg,tmp
