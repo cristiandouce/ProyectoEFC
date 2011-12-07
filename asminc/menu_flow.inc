@@ -216,7 +216,6 @@ idle:
 comunicateA:
 		rcall SendLambda
 
-		
 		ldi arg,'c'
 		rcall USART_Transmit
 		ldi arg,'a'
@@ -242,7 +241,7 @@ comunicateA:
 		ldi arg,'!'
 		rcall USART_Transmit
 
-
+		SetLcdClearAtHome
 		ldi		arg,'>'
 		rcall 	lcd_putc
 		ldi		Zh,high(sDone<<1)
@@ -251,6 +250,11 @@ comunicateA:
 		rcall	LCD_Putstring
 
 		rcall delay1s
+		rcall delay1s
+
+		secondline
+		rcall PutEepromData
+
 		rcall delay1s
 
 		ldi		Xh,high(Calibra<<1)

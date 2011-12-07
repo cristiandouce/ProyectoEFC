@@ -104,6 +104,42 @@ SendLambda:
 		SendData Xl
 		ret
 
+PutEepromData:
+		;* cargo un contador para los 5 datos
+		ldi 	delay,1
+start2:
+		;* Mando instruccion de lectura
+		;* y levanto el dato
+		SendInstruction 'e'
+		
+		;* Cargo el dato en argumento para llevar al lcd
+		;* ACA ESTA EL BUG
+		ldi tmp,5
+		mov		arg,tmp
+		clr Yh
+		mov Yl,arg
+		movw	rBin1H:rBin1L,Yh:Yl
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		
+		ld	arg,Z+
+		ld	arg,Z+
+		ldi tmp,3
+		ld	arg,Z+
+tsloop2:	
+		rcall USART_Transmit
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		brne tsloop2
+		ldi arg,','
+		rcall USART_Transmit
+
+		;* Decremento el contador
+		dec 	delay
+		brne 	start2
+		ret
 
 PutSensorData:
 		;* cargo un contador para los 5 datos
@@ -136,16 +172,6 @@ tsloop:
 		rcall USART_Transmit
 
 		;* Decremento el contador
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
 		dec 	delay
 		brne 	start
 		ret

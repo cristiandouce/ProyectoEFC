@@ -54,6 +54,11 @@ SPI_Sinit:
 SPI_STC:
 		sbi PortC,4
 		in dta,SPDR;guardo el byte q me mando
+		
+		cpi dta,'e';hago la calibracion
+		breq eepromReadTest
+
+
 		;* Me fijo si voy a recibir Lambda
         cpi fla,0
         brne savelambdah
@@ -88,6 +93,13 @@ return_interrupt:
 		cbi PortC,4
 		reti
 
+eepromReadTest:
+		MoveCalibraTo 2
+		rcall EEPROM_read
+		ldi tmp,5
+		out SPDR,tmp
+		rjmp	return_interrupt
+			
 savelambdah:
 		cpi fla,1
 		breq savelambdal
