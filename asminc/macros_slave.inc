@@ -21,5 +21,7 @@
 
 
 	.MACRO MoveCalibraTo
+        clr Yh             ;por el org 000 esperemos que funque asi
+        clr Yl             ;sin tener que cargar ldi Yl,low(calibracion<<1)
 		adiw 	Yh:Yl,@0
 	.ENDMACRO

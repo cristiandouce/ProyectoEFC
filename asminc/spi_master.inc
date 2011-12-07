@@ -71,9 +71,8 @@ SPI_Wait:
 		ret
 
 SPI_WAIT_FOR_SLAVE:
-		in 		tmp,PINC
-		ldi 	aux,0b00100000
-		and 	tmp,aux
+		in 		aux,PINC
+		andi 	aux,0b00100000
 		brne	SPI_WAIT_FOR_SLAVE ;Cuando esta en cero sigo de largo
 		ret
 ;*****************************************************************

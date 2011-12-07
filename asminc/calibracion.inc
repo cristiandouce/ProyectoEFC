@@ -50,8 +50,6 @@ actualizar_maximo:
 ;*	Toma los valores cada dieciseis pasos del motor
 ;*****************************************************************
 lectura:
-           clr Yh
-           clr Yl
            MoveCalibraTo 9;  
            rcall EEPROM_read 
            mov r1,rtn

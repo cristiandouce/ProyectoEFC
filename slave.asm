@@ -25,15 +25,27 @@
 
 ;********************************************************************************************************
 ;Defino las variables
+	.eseg
+		.org 0x0000
+	calibraData:		;Apunta al principio de los datos
+						;de calibracion
+	estadoCal: 		.db 0x00
+	priLambda:  	.dw 0x0000
+	priPosMot:  	.dw 0x0000
+	segLambda:  	.dw 0x0000
+	segPosMot:  	.dw 0x0000
+	deltaPaLa:  	.dw 0x0000
+	lambdaMinPos:	.dw 0x0000
+
 	.dseg
 		.org 0x200
 		
-	pos_max:    .byte 2
- delta_paso:    .byte 2
- delta_lambda:  .byte 2
-		var:	.byte	120
- cant_pasos:	.byte   2
- promedio: 		.byte 	1
+pos_max:    .byte 2
+delta_paso:    .byte 2
+delta_lambda:  .byte 2
+var:	.byte	120
+cant_pasos:	.byte   2
+promedio: 		.byte 	1
 mediciones:     .byte 400
 	.cseg
 		.org 0x0000
@@ -73,7 +85,6 @@ MAIN:
 		sbi	DDRD, 1; TX como salida
 		sbi DDRD,4; XCK como salida,master mode
 		
-		sbi DDRC,4 ;configuro SlaveStatus como salida
 
 
 		;* Y ESTO??? COMMENTS PLEASE!!!
@@ -85,6 +96,9 @@ MAIN:
         sbi PORTB,0
         sbi PORTB,1
         sbi PORTC,5
+
+		sbi DDRC,4 ;configuro SlaveStatus como salida
+        sbi PORTC,4
 
         ;* Posicion inicial motor
         ldi tmp,low(posicion1<<1)

@@ -208,12 +208,15 @@ Lambda_Ret:
 		ldi 	zh,high(valor_lambda<<1)
 		st 		z+,yh
 		st 		z,yl
+		;rjmp 	comunicateC
 		rjmp 	comunicateA
 idle:
 		ret
 
 comunicateA:
 		rcall SendLambda
+
+		
 		ldi arg,'c'
 		rcall USART_Transmit
 		ldi arg,'a'
@@ -238,6 +241,18 @@ comunicateA:
 		rcall USART_Transmit
 		ldi arg,'!'
 		rcall USART_Transmit
+
+
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+
+		rcall	LCD_Putstring
+
+		rcall delay1s
+		rcall delay1s
+
 		ldi		Xh,high(Calibra<<1)
 		ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen

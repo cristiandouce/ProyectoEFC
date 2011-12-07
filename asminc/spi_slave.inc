@@ -52,27 +52,37 @@ SPI_Sinit:
 ;*	Operaciones de las Interrupciones
 ;*****************************************************************
 SPI_STC:
-		in dta,SPDR;guardo el byte q me mando
 		sbi PortC,4
+		in dta,SPDR;guardo el byte q me mando
+		;* Me fijo si voy a recibir Lambda
         cpi fla,0
         brne savelambdah
+
+        ;* Me fijo que instrucción se envió...
+
 		cpi dta,'s';me fijo si fue la orden 's'
 		breq ReadSensor;y voy a hacer la rutina dl sensor
+
 		cpi dta,'d'
-		breq SendSensorData		
+		breq SendSensorData	
+			
 		cpi dta,'p'
 		breq PrepMotorCount
+
 		cpi dta,'c'
 		breq SendMotorCount
+
 		cpi dta,'u'
 		breq MotorUp
+
 		cpi dta,'j'
 		breq MotorDown
+
 		cpi dta,'m'
 		breq return_interrupt
+
 		cpi dta,'a';hago la calibracion
 		breq preparacalibrar
-
 
 return_interrupt:
 		cbi PortC,4
@@ -82,11 +92,13 @@ savelambdah:
 		cpi fla,1
 		breq savelambdal
 		mov lambdah,dta
-		rjmp calibrar
+		dec fla
+		rjmp return_interrupt
 
 savelambdal:
 		mov lambdal,dta
-		rjmp return_interrupt
+		dec fla
+		rjmp calibrar
 
 ReadSensor:
 		ldi tmp,'w'
@@ -130,7 +142,7 @@ calibrar:
         MoveCalibraTo 0;veo el estado d la calibracion 
         rcall EEPROM_read 
         mov tmp,rtn
-        cpi tmp,0;significa q antes calibre el segundo
+        cpi tmp,0 	;significa q antes calibre el segundo
         breq primera_calibracion
         cpi tmp,1;significa q hice la primera calibracion,hago la segunda
         breq segunda_calibracion
@@ -177,5 +189,7 @@ segunda_calibracion:
         MoveCalibraTo 0
         ldi arg,0
         rcall EEPROM_write
-        rcall conversion;una vez q tengo las dos calibraciones, busco la equivalencia entre pasos y longitudes d onda
+        rcall conversion		;una vez q tengo las dos calibraciones,
+        						;busco la equivalencia entre pasos y longitudes
+        						;de onda
         rjmp return_interrupt          
