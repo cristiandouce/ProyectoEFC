@@ -47,6 +47,7 @@ var:	.byte	120
 cant_pasos:	.byte   2
 promedio: 		.byte 	1
 mediciones:     .byte 400
+fake:        .byte 2
 	.cseg
 		.org 0x0000
 		rjmp RESET
@@ -85,7 +86,6 @@ MAIN:
 		sbi	DDRD, 1; TX como salida
 		sbi DDRD,4; XCK como salida,master mode
 		
-
 
 		;* Y ESTO??? COMMENTS PLEASE!!!
         ldi tmp,0b00001111
@@ -130,6 +130,7 @@ MAIN:
 		;* Espero instrucciones del master
 		ldi	Xl,low(cant_pasos)
 	    ldi	Xh,high(cant_pasos)
+	    clr fla
 		sei
 		
 idle:

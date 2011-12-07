@@ -26,7 +26,11 @@
 	.equ	pMISO	=	4
 	.equ	pSCK	=	5
 	.equ	cnf_slv =	0b11100000
-
+    .equ    estado  =  0
+    .equ    calibra1High = 3
+    .equ    calibra1Low = 4
+    .equ    calibra2High =7
+    .equ   calibra2Low = 8
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con SPI
@@ -53,16 +57,24 @@ SPI_Sinit:
 ;*****************************************************************
 SPI_STC:
 		sbi PortC,4
+		
 		in dta,SPDR;guardo el byte q me mando
 		
-		cpi dta,'e';hago la calibracion
-		breq eepromReadTest
-
 
 		;* Me fijo si voy a recibir Lambda
         cpi fla,0
-        brne savelambdah
+        brne savelambda
 
+
+
+		cpi dta,'e';hago la calibracion
+		breq eepromReadTest
+        
+
+        cpi dta,'f'
+        breq partealta
+
+		
         ;* Me fijo que instrucción se envió...
 
 		cpi dta,'s';me fijo si fue la orden 's'
@@ -94,23 +106,35 @@ return_interrupt:
 		reti
 
 eepromReadTest:
-		MoveCalibraTo 2
-		rcall EEPROM_read
-		ldi tmp,5
+        mov tmp,lambdal
 		out SPDR,tmp
 		rjmp	return_interrupt
-			
-savelambdah:
+
+partealta:
+        mov tmp,lambdah
+		out SPDR,tmp
+		rjmp	return_interrupt
+	
+savelambda:
 		cpi fla,1
 		breq savelambdal
-		mov lambdah,dta
-		dec fla
+		cpi fla,3
+		breq savelambdah
+        dec fla
 		rjmp return_interrupt
 
+savelambdah:
+        mov lambdah,dta
+        dec fla
+	rjmp return_interrupt
+
+		
+
 savelambdal:
-		mov lambdal,dta
-		dec fla
-		rjmp calibrar
+        mov lambdal,dta
+        dec fla
+		rjmp return_interrupt
+		;rjmp calibrar
 
 ReadSensor:
 		ldi tmp,'w'
@@ -145,13 +169,11 @@ SendMotorCount:
 		out SPDR,tmp
 		rjmp	return_interrupt	
 preparacalibrar:
-		ldi 	fla,2
+		ldi 	fla,4
 		rjmp return_interrupt;sino, no tengo nada q calibrar
 
 calibrar:
-        clr Yh
-        clr Yl
-        MoveCalibraTo 0;veo el estado d la calibracion 
+        MoveCalibraTo estado;veo el estado d la calibracion 
         rcall EEPROM_read 
         mov tmp,rtn
         cpi tmp,0 	;significa q antes calibre el segundo
@@ -165,19 +187,19 @@ primera_calibracion:
         ;aca pedir ayuda dl macro,x ahora lo hago a mano
         clr Yh
         clr Yl
-        MoveCalibraTo 3        
+        MoveCalibraTo calibra1High        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
         ld tmp,X+
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo 4
+        MoveCalibraTo calibra1Low
         ld tmp,X
         mov arg,tmp
         rcall EEPROM_write
 
 
-        MoveCalibraTo 0
+        MoveCalibraTo estado
         ldi arg,1
         rcall EEPROM_write
         rcall conversion
@@ -188,17 +210,18 @@ segunda_calibracion:
         ;aca pedir ayuda dl macro,x ahora lo hago a mano
         clr Yh
         clr Yl
-        MoveCalibraTo 7        
+        MoveCalibraTo calibra2High        
         ldi Xh,high(pos_max)
         ldi Xl,low(pos_max)
         ld tmp,X+
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo 8  
+        MoveCalibraTo calibra2Low  
         ld tmp,X
         mov arg,tmp
         rcall EEPROM_write
-        MoveCalibraTo 0
+
+        MoveCalibraTo estado
         ldi arg,0
         rcall EEPROM_write
         rcall conversion		;una vez q tengo las dos calibraciones,

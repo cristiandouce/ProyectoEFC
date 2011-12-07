@@ -42,7 +42,7 @@
 	.MACRO	SendData
 		;* Cargo la instruccion a enviar en 'tmp'
 		mov tmp,@0
-
+        
 		SpiLogic
 
 	.ENDMACRO
@@ -100,3 +100,8 @@
 		adiw	ZH:ZL,@0
 	.ENDMACRO
 	
+	.MACRO MoveCalibraTo
+        clr r25             ;por el org 000 esperemos que funque asi
+        clr r24            
+		adiw 	r25:r24,@0
+	.ENDMACRO

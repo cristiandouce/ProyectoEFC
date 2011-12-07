@@ -18,7 +18,17 @@
 	.include "asminc/menudef.inc"
 	.include "asminc/regs_alias.inc"
 	.include "asminc/macros_master.inc"	
-		
+	.eseg
+		.org 0x0000
+	calibraData:		;Apunta al principio de los datos
+						;de calibracion
+	estadoCal: 		.db 0x00
+	priLambda:  	.dw 0x0000
+	priPosMot:  	.dw 0x0000
+	segLambda:  	.dw 0x0000
+	segPosMot:  	.dw 0x0000
+	deltaPaLa:  	.dw 0x0000
+	lambdaMinPos:	.dw 0x0000	
 	.dseg
 		var:	.byte	6
 	cant_pasos: .byte 	2

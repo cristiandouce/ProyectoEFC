@@ -100,45 +100,45 @@ SlavePrepMotorC:
 SendLambda:
 		;*	Mando al slave para que inicie la se prepare a leer lambda
 		SendInstruction 'a'
-		SendData Xh
-		SendData Xl
+	
+		SendData r1
+		SendData r0
+		
 		ret
 
 PutEepromData:
+		SetLcdClearAtHome
 		;* cargo un contador para los 5 datos
 		ldi 	delay,1
-start2:
+start88:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
+		
+		SendInstruction 'f'
+		;* Cargo el dato en argumento para llevar al lcd
+		mov		Yh,tmp
 		SendInstruction 'e'
 		
 		;* Cargo el dato en argumento para llevar al lcd
-		;* ACA ESTA EL BUG
-		ldi tmp,5
-		mov		arg,tmp
-		clr Yh
-		mov Yl,arg
+		mov Yl,tmp
 		movw	rBin1H:rBin1L,Yh:Yl
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
-		
 		ld	arg,Z+
 		ld	arg,Z+
 		ldi tmp,3
 		ld	arg,Z+
-tsloop2:	
+tsloop88:	
 		rcall USART_Transmit
 		ld	arg,Z+
 		dec tmp
 		cpi tmp,0
-		brne tsloop2
+		brne tsloop88
 		ldi arg,','
 		rcall USART_Transmit
-
 		;* Decremento el contador
-		dec 	delay
-		brne 	start2
+
 		ret
 
 PutSensorData:
