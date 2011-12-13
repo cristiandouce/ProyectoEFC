@@ -374,15 +374,47 @@ ComunicateL:
 		SetLcdClearAtHome 		
 		;rcall 	SlaveSensorInit
 		;rcall 	PutSensorData
-		rcall	SlavePrepMotorC
-		rcall 	getmotorcount
-		ldi		Zh,high(datos<<1)
-		ldi		Zl,low(datos<<1)
+		rcall   filldatos
+		rcall   fillmotorcount
+		;rcall	SlavePrepMotorC
+		;rcall 	getmotorcount
+		ldi		Yh,high(datos)
+		ldi		Yl,low(datos)
 		ldi		Xh,high(Resultados<<1)
 		ldi		Xl,low(Resultados<<1)
 		rjmp 	ShowScreen
 		ret
 
+filldatos:
+       	ldi		Zh,high(datos)
+		ldi		Zl,low(datos)
+		ldi tmp,'a'
+		st z+,tmp
+		ldi tmp,'b'
+		st z+,tmp
+		ldi tmp,'c'
+		st z+,tmp
+		ldi tmp,'d'
+		st z+,tmp
+		ldi tmp,'e'
+		st z+,tmp
+		ldi tmp,'f'
+		st z+,tmp
+		ldi tmp,'g'
+		st z+,tmp
+		ldi tmp,'h'
+		st z+,tmp
+		ret
+fillmotorcount:
+		ldi zh,high(cant_pasos)
+		ldi zl,low(cant_pasos)
+		ldi tmp,0
+		st z+,tmp
+		ldi tmp,7
+		st z,tmp
+		ret
+
+		
 ComunicateQ:
 		SetLcdClearAtHome 		
 		rcall 	getmotorcount
@@ -402,77 +434,83 @@ tsloop7:
 		rcall delay1s
 		rcall delay1s
 		rjmp 	ShowScreen
-		
+			
 res_up:
     	push xh
     	push xl
-    	adiw Zh:Zl,1
-		ldi yh,high(datos<<1)
-		ldi yl,low(datos<<1)
-		movw xh:xl,zh:zl
-		sub xl,yl
-		sbc xh,yh
-		ldi yh,high(cant_pasos<<1)
-		ldi yl,low(cant_pasos<<1)
-		cp  xl,yl
-		cpc xh,yh
-		brlo OVERFLOWDATA
-    	pop xl
-    	pop xh
-		rjmp 	ShowScreen
-
-OVERFLOWDATA:
-		pop xl
+    	adiw Yh:Yl,1
+		ldi Zh,high(datos)
+		ldi Zl,low(datos)
+		movw xh:xl,Yh:Yl
+		sub xl,Zl
+		sbc xh,Zh
+		ldi Zh,high(cant_pasos)
+		ldi Zl,low(cant_pasos)
+		ld wrdh,Z+
+		ld wrdl,Z+
+		movw Zh:zl,wrdh:wrdl
+		cp  Zl,xl
+		cpc Zh,xh;
+		brlo OVERFLOWDATA;
+    	pop xl;
+    	pop xh;
+		rjmp 	ShowScreen;
+;
+OVERFLOWDATA:;
+		pop xl;
 		pop xh
-		ldi zh,high(datos<<1)
-		ldi zl,low(datos<<1)
+		ldi Yh,high(datos)
+		ldi Yl,low(datos)
 		rjmp ShowScreen
 
 res_down:
-		sbiw	Zh:Zl,1
-    	cpi	 	Zh,high(datos<<1)
-    	ldi 	tmp,low(datos<<1)
-    	cpc 	Zl,tmp
+    	ldi 	tmp,low(datos)
+    	cpi	 	Yh,high(datos)
+    	cpc 	Yl,tmp
     	breq 	UNDERFLOWDATA
+		sbiw	Yh:Yl,1
     	rjmp ShowScreen
 
 	
 UNDERFLOWDATA:
-		ldi zh,high(cant_pasos<<1)
-		ldi zl,low(cant_pasos<<1)
-		ld Yl,z+
-		ld Yh,z+
-		ldi zh,high(datos<<1)
-		ldi zl,low(datos<<1)
-		add zl,yl
-		adc zh,yh
+		ldi Zh,high(cant_pasos)
+		ldi Zl,low(cant_pasos)
+		ld wrdh,Z+
+		ld wrdl,Z+
+		movw Zh:Zl,wrdh:wrdl
+		ldi Yh,high(datos)
+		ldi Yl,low(datos)
+		add Yl,Zl
+		adc Yh,Zh
 		rjmp ShowScreen
 		
 
 displongond:
-		ld arg,Z
-		push Zh
-		push Zl
-		clr rBin1H
-		mov rBin1L,arg
-		ldi     Zh,high(buffer)
-		ldi 	Zl,low(buffer)
-		rcall	Bin2ToAsc5
-		ldi tmp,5
-		ld	arg,Z+
-tsloop4:	
+		ld arg,Y
+		;push Zh
+		;push Zl
+		;clr rBin1H
+		;mov rBin1L,arg
+		;ldi     Zh,high(buffer)
+		;ldi 	Zl,low(buffer)
+		;rcall	Bin2ToAsc5
+		;ldi tmp,5
+		;ld	arg,Z+
+tsloop4:;	
 		rcall LCD_putc
-		ld	arg,Z+
-		dec tmp
-		cpi tmp,0
-		brne tsloop4
- 		pop Zl
- 		pop Zh
+		;ld	arg,Z+
+		;dec tmp
+		;cpi tmp,0
+		;brne tsloop4
+ 		;pop Zl
+ 		;pop Zh
 		ret
 dispintensidad:
-		secondline
+		;secondline
 
 		ret
+
+
 
 ;*****************************************************************
 
