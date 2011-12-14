@@ -141,17 +141,16 @@ savelambdah:
 savelambdal:
         mov lambdal,dta
         dec fla
-		rjmp return_interrupt
+		;rjmp return_interrupt
 		rjmp calibrar
 
 ReadSensor:
 		ldi tmp,'w'
 		out	SPDR,tmp
-
+        rcall sensor_reset;
 		rcall sensor
-		rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
-		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(var)
+		ldi	Xl,low(promedio);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(promedio)
 		rjmp	return_interrupt
 
 MotorUp:
@@ -162,7 +161,7 @@ MotorDown:
 		rjmp return_interrupt
 
 SendSensorData:
-		ld tmp,X+
+		ld tmp,X
 		out SPDR,tmp
 		rjmp	return_interrupt	
 
@@ -191,6 +190,7 @@ calibrar:
         rjmp return_interrupt;sino, no tengo nada q calibrar
 
 primera_calibracion:
+         
          MoveCalibraTo lambda1High
          mov arg,lambdah
          rcall EEPROM_write
@@ -221,6 +221,7 @@ primera_calibracion:
         rjmp return_interrupt
 
 segunda_calibracion:
+        
         MoveCalibraTo lambda2High
         mov arg,lambdah
         rcall EEPROM_write

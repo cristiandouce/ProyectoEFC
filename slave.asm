@@ -131,6 +131,10 @@ MAIN:
 		ldi	Xl,low(cant_pasos)
 	    ldi	Xh,high(cant_pasos)
 	    clr fla
+	    ;lo pongo en cero
+	    MoveCalibraTo estado
+        ldi arg,0
+        rcall EEPROM_write
 		sei
 		
 idle:

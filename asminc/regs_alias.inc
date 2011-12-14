@@ -34,15 +34,16 @@
 	.def	wrdh 	=	 r11
 	.def	lambdaL	=	 r12
 	.def	lambdaH	=	 r13
+	.def    counter =    r14
 	.def	tmp		=	 r16		;* Registro para uso general
 	.def	arg		=	 r17		;* Argumentos para pasar a funciones
 	.def	rtn		=	 r18		;valor de retorno de subrutinas
 	.def    delay	=	 r19		;valor de bayte recivido por SPI
 	.def	fla		=	 r20		;Registro para flags:b(0-1):Opcion global.b2:switchUPon
 								;b3:switchDWon ;b4:switchRTon; b5:on/off; b6-7 tipo de menu
-	.def	key		=	r21
+	.def	key		=	r24
 	.def	dta		=	r22		
-	.def 	dtal	=	r23
-	.def 	aux 	=	r24
+	.def 	dtal	=	r23	
+	.def    aux     =	r21
 
 	.def 	con		=	r25		; hay que reemplazar por r[0-15]

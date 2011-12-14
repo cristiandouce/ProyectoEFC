@@ -208,8 +208,10 @@ idle:
 		ret
 
 comunicateA:
-        mov r1,Yh
+        mov r1,Yh;hago una copia de seguridad del valor de lambda
         mov r0,Yl
+        
+        ;Muestro el valor seleccionado de lambda nuevamente en el display
 
 		movw	rBin1H:rBin1L,Yh:Yl
 		ldi     Zh,high(buffer)
@@ -226,7 +228,7 @@ tsloop10:
 		brne tsloop10
 		rcall delay1s
 		rcall delay1s
-
+ 
 		      
         ldi arg,'c'
 		rcall USART_Transmit
@@ -255,7 +257,7 @@ tsloop10:
 
 
 		rcall SendLambda
-        rcall PutEepromData
+        ;rcall PutEepromData
        
 		
 
