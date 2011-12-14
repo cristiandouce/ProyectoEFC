@@ -208,12 +208,12 @@ idle:
 		ret
 
 comunicateA:
-        mov r1,Yh;hago una copia de seguridad del valor de lambda
-        mov r0,Yl
+        mov r1,wrdh;hago una copia de seguridad del valor de lambda
+        mov r0,wrdl
         
         ;Muestro el valor seleccionado de lambda nuevamente en el display
 
-		movw	rBin1H:rBin1L,Yh:Yl
+		movw	rBin1H:rBin1L,r1:r0
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
