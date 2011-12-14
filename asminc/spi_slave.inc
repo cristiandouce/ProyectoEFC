@@ -64,74 +64,118 @@ SPI_Sinit:
 ;*	Operaciones de las Interrupciones
 ;*****************************************************************
 SPI_STC:
-        sbi PortC,4
-        in dta,SPDR;guardo el byte q me mando
-        cpi fla,0
-        brne savelambdah
-        cpi dta,'s';me fijo si fue la orden 's'
-        breq ReadSensor;y voy a hacer la rutina dl sensor
-        cpi dta,'d'
-        breq SendSensorData     
-        cpi dta,'p'
-        breq PrepMotorCount
-        cpi dta,'c'
-        breq SendMotorCount
-        cpi dta,'u'
-        breq MotorUp
-        cpi dta,'j'
-        breq MotorDown
-        cpi dta,'m'
-        breq return_interrupt
-        cpi dta,'a';hago la calibracion
-        breq preparacalibrar
+		sbi PortC,4
+		
+		in dta,SPDR;guardo el byte q me mando
+		
 
+		;* Me fijo si voy a recibir Lambda
+        cpi fla,0
+        brne savelambda
+
+
+
+		cpi dta,'e';hago la calibracion
+		breq eepromReadTest
+        
+
+        cpi dta,'f'
+        breq partealta
+
+		
+        ;* Me fijo que instrucción se envió...
+
+		cpi dta,'s';me fijo si fue la orden 's'
+		breq ReadSensor;y voy a hacer la rutina dl sensor
+
+		cpi dta,'d'
+		breq SendSensorData	
+			
+		cpi dta,'p'
+		breq PrepMotorCount
+
+		cpi dta,'c'
+		breq SendMotorCount
+
+		cpi dta,'u'
+		breq MotorUp
+
+		cpi dta,'j'
+		breq MotorDown
+
+		cpi dta,'m'
+		breq return_interrupt
+
+		cpi dta,'a';hago la calibracion
+		breq preparacalibrar
 
 return_interrupt:
-        cbi PortC,4
-        reti
+		cbi PortC,4
+		reti
+
+eepromReadTest:
+        mov tmp,lambdal
+		out SPDR,tmp
+		rjmp	return_interrupt
+
+partealta:
+        mov tmp,lambdah
+		out SPDR,tmp
+		rjmp	return_interrupt
+	
+savelambda:
+		cpi fla,1
+		breq savelambdal
+		cpi fla,3
+		breq savelambdah
+        dec fla
+		rjmp return_interrupt
 
 savelambdah:
-        cpi fla,1
-        breq savelambdal
         mov lambdah,dta
-        rjmp calibrar
+        dec fla
+	rjmp return_interrupt
+
+		
 
 savelambdal:
         mov lambdal,dta
-        rjmp return_interrupt
+        dec fla
+		rjmp return_interrupt
+		rjmp calibrar
 
 ReadSensor:
-        ldi tmp,'w'
-        out SPDR,tmp
+		ldi tmp,'w'
+		out	SPDR,tmp
 
-        rcall sensor
-        rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
-        ldi Xl,low(promedio);vuelvo a hacer q apunte al comienzo
-        ldi Xh,high(promedio)
-        rjmp    return_interrupt
+		rcall sensor
+		rcall sensor_reset; PARA Q LOS PIXELS VUELVAN A CERO
+		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(var)
+		rjmp	return_interrupt
 
 MotorUp:
-        rcall stepback
-        rjmp return_interrupt
+		rcall stepback
+		rjmp return_interrupt
 MotorDown:
-        rcall stepforth
-        rjmp return_interrupt
+		rcall stepforth
+		rjmp return_interrupt
 
 SendSensorData:
-        ld tmp,X
-        out SPDR,tmp
-        rjmp    return_interrupt    
+		ld tmp,X+
+		out SPDR,tmp
+		rjmp	return_interrupt	
 
 PrepMotorCount:
-        ldi xh,high(cant_pasos)
-        ldi xl,low(cant_pasos)
-        ldi arg,4
-        rjmp    return_interrupt    
+		ldi xh,high(cant_pasos)
+		ldi xl,low(cant_pasos)
+		ldi arg,4
+		rjmp	return_interrupt	
 
 SendMotorCount:
-        ld tmp,X+
-        out SPDR,tmp
-        rjmp    return_interrupt    
+		ld tmp,X+
+		out SPDR,tmp
+		rjmp	return_interrupt	
 preparacalibrar:
 		ldi 	fla,4
 		rjmp return_interrupt;sino, no tengo nada q calibrar

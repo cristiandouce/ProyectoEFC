@@ -54,6 +54,8 @@
 		rcall SPI_Wait
 		SPI_STOP
 
+		rcall SPI_WAIT_FOR_SLAVE
+		
 		;* Cargo NULL para no afectar Slave
 		ldi tmp,0
 
