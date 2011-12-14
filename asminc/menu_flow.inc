@@ -172,28 +172,25 @@ keyRT:
 		rjmp	PressRet
 
 toLambda:
-		ldi 	zl,low(valor_lambda<<1)
-		ldi 	zh,high(valor_lambda<<1)
-		ld 		yh,z+
-		ld 		yl,z
-
+		clr 	yh
+		clr 	yl
 		ldi		Xh,high(Lambda<<1)
 		ldi		Xl,low(Lambda<<1)
 		rjmp 	ShowScreen
 
 Lambda_Down:
 		sbiw 	YH:YL,1
-		brmi 	set999
+		brmi 	set400
 		rjmp   	ShowScreen
 
-set999:
-		ldi 	Yh,0x03
-		ldi 	Yl,0xe7
+set400:
+		ldi 	Yh,0x1
+		ldi 	Yl,0x90
 		rjmp 	ShowScreen
 
 Lambda_Up:
-		ldi 	Zh,0x03
-		ldi 	Zl,0xe8
+		ldi 	Zh,0x01
+		ldi 	Zl,0x91
 		adiw 	YH:YL,1
 		cp 	 	Yh,Zh
 		cpc	 	Yl,Zl
@@ -203,11 +200,8 @@ set0:
 		clr 	Yh
 		clr 	Yl
 		rjmp 	ShowScreen
+
 Lambda_Ret:
-		ldi 	zl,low(valor_lambda<<1)
-		ldi 	zh,high(valor_lambda<<1)
-		st 		z+,yh
-		st 		z,yl
 		;rjmp 	comunicateC
 		rjmp 	comunicateA
 idle:
@@ -288,14 +282,9 @@ comunicateC:
 		SetLcdClearAtHome
 		rcall SlaveSensorInit
 		rcall PutSensorData
-
-		rcall delay1s
 		ldi		Zh,high(sEnviandoPC<<1)
 		ldi		Zl,low(sEnviandoPC<<1)
 		rcall	LCD_Putstring
-
-
-        
         MoveCalibraTo 4
         ldi arg,'m'
         rcall EEPROM_write
@@ -304,10 +293,9 @@ comunicateC:
         rcall EEPROM_write
         MoveCalibraTo 6
         ldi arg,'y'
-        rcall EEPROM_write
-
+       	rcall EEPROM_write
         MoveCalibraTo 6
-        rcall EEPROM_read
+       	rcall EEPROM_read
         mov arg,rtn
         rcall USART_Transmit
 
@@ -321,10 +309,6 @@ comunicateC:
         rcall EEPROM_read
         mov arg,rtn
         rcall USART_Transmit
-
-
-
-
 
 		ldi arg,'a'
 		rcall USART_Transmit
@@ -345,17 +329,24 @@ comunicateC:
 		ldi		Zl,low(sDone<<1)
 
 		rcall	LCD_Putstring
-
 		rcall delay1s
 		rcall delay1s
 
 		ldi		Xh,high(Calibra<<1)
-		ldi		Xl,low(Calibra<<1)
+    	ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen
 
 slLambda:
 		secondline
-		movw	rBin1H:rBin1L,Yh:Yl
+		movw	wrdh:wrdl,yh:yl
+		ldi 	zh,high(sLo<<1)
+		ldi 	zl,low(sLo<<1)
+		rcall 	LCD_PutString
+		ldi 	dta,0x1
+		ldi 	dtal,0x90
+		add 	wrdl,dtal
+		adc 	wrdh,dta
+		movw	rBin1H:rBin1L,wrdh:wrdl
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
@@ -375,43 +366,24 @@ ComunicateL:
 		;rcall 	SlaveSensorInit
 		;rcall 	PutSensorData
 		rcall   filldatos
-		rcall   fillmotorcount
 		;rcall	SlavePrepMotorC
 		;rcall 	getmotorcount
-		ldi		Yh,high(datos)
-		ldi		Yl,low(datos)
+		clr 	yh
+		clr 	yl
 		ldi		Xh,high(Resultados<<1)
 		ldi		Xl,low(Resultados<<1)
 		rjmp 	ShowScreen
 		ret
 
 filldatos:
-       	ldi		Zh,high(datos)
+		ldi 	yh,0x1
+		ldi 	yl,0x90
+		ldi		Zh,high(datos)
 		ldi		Zl,low(datos)
-		ldi tmp,'a'
-		st z+,tmp
-		ldi tmp,'b'
-		st z+,tmp
-		ldi tmp,'c'
-		st z+,tmp
-		ldi tmp,'d'
-		st z+,tmp
-		ldi tmp,'e'
-		st z+,tmp
-		ldi tmp,'f'
-		st z+,tmp
-		ldi tmp,'g'
-		st z+,tmp
-		ldi tmp,'h'
-		st z+,tmp
-		ret
-fillmotorcount:
-		ldi zh,high(cant_pasos)
-		ldi zl,low(cant_pasos)
-		ldi tmp,0
-		st z+,tmp
-		ldi tmp,7
-		st z,tmp
+floop:	st 		z+,yh
+		st 		z+,yl
+		sbiw	Yh:Yl,1
+		brne 	floop
 		ret
 
 		
@@ -434,80 +406,75 @@ tsloop7:
 		rcall delay1s
 		rcall delay1s
 		rjmp 	ShowScreen
-			
-res_up:
-    	push xh
-    	push xl
-    	adiw Yh:Yl,1
-		ldi Zh,high(datos)
-		ldi Zl,low(datos)
-		movw xh:xl,Yh:Yl
-		sub xl,Zl
-		sbc xh,Zh
-		ldi Zh,high(cant_pasos)
-		ldi Zl,low(cant_pasos)
-		ld wrdh,Z+
-		ld wrdl,Z+
-		movw Zh:zl,wrdh:wrdl
-		cp  Zl,xl
-		cpc Zh,xh;
-		brlo OVERFLOWDATA;
-    	pop xl;
-    	pop xh;
-		rjmp 	ShowScreen;
+;			
+;res_up:
+ ;   	push xh
+ ;   	push xl
+ ;   	adiw Yh:Yl,1
+;		ldi Zh,high(datos)
+;		ldi Zl,low(datos)
+;		movw xh:xl,Yh:Yl
+;		sub xl,Zl
+;		sbc xh,Zh
+;		ldi Zh,high(cant_pasos)
+;		ldi Zl,low(cant_pasos)
+;		ld wrdh,Z+
+;		ld wrdl,Z+
+;		movw Zh:zl,wrdh:wrdl
+;		cp  Zl,xl
+;		cpc Zh,xh;
+;;		brlo OVERFLOWDATA;
+;;    	pop xl;
+;    	pop xh;
+;		rjmp 	ShowScreen;
+;;
+;OVERFLOWDATA:;
+;		pop xl;
+;		pop xh
+;		ldi Yh,high(datos)
+;		ldi Yl,low(datos)
+;		rjmp ShowScreen
 ;
-OVERFLOWDATA:;
-		pop xl;
-		pop xh
-		ldi Yh,high(datos)
-		ldi Yl,low(datos)
-		rjmp ShowScreen
-
-res_down:
-    	ldi 	tmp,low(datos)
-    	cpi	 	Yh,high(datos)
-    	cpc 	Yl,tmp
-    	breq 	UNDERFLOWDATA
-		sbiw	Yh:Yl,1
-    	rjmp ShowScreen
+;res_down:
+;    	ldi 	tmp,low(datos)
+;    	cpi	 	Yh,high(datos)
+;    	cpc 	Yl,tmp
+;    	breq 	UNDERFLOWDATA
+;		sbiw	Yh:Yl,1
+;    	rjmp ShowScreen
 
 	
-UNDERFLOWDATA:
-		ldi Zh,high(cant_pasos)
-		ldi Zl,low(cant_pasos)
-		ld wrdh,Z+
-		ld wrdl,Z+
-		movw Zh:Zl,wrdh:wrdl
-		ldi Yh,high(datos)
-		ldi Yl,low(datos)
-		add Yl,Zl
-		adc Yh,Zh
-		rjmp ShowScreen
+;UNDERFLOWDATA:
+;		ldi Zh,high(cant_pasos)
+;		ldi Zl,low(cant_pasos)
+;		ld wrdh,Z+
+;		ld wrdl,Z+
+;		movw Zh:Zl,wrdh:wrdl
+;		ldi Yh,high(datos)
+;		ldi Yl,low(datos)
+;		add Yl,Zl
+;		adc Yh,Zh
+;		rjmp ShowScreen
 		
 
-displongond:
-		ld arg,Y
-		;push Zh
-		;push Zl
-		;clr rBin1H
-		;mov rBin1L,arg
-		;ldi     Zh,high(buffer)
-		;ldi 	Zl,low(buffer)
-		;rcall	Bin2ToAsc5
-		;ldi tmp,5
-		;ld	arg,Z+
-tsloop4:;	
-		rcall LCD_putc
-		;ld	arg,Z+
-		;dec tmp
-		;cpi tmp,0
-		;brne tsloop4
- 		;pop Zl
- 		;pop Zh
-		ret
 dispintensidad:
 		;secondline
-
+		ldi 	zh,high(sInt<<1)
+		ldi 	zl,low(sInt<<1)
+		rcall 	LCD_PutString
+		ldi 	zh,high(datos)
+		ldi 	zl,low(datos)
+		add 	zl,yl
+		adc 	zh,yh
+		add 	zl,yl
+		adc 	zh,yh
+		ld 		dtal,z+
+		ld 		dta,z+
+		movw	rBin1H:rBin1L,dtal:dta
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		rcall 	LCD_PutAscii
 		ret
 
 
