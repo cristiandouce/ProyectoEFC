@@ -99,16 +99,18 @@ SlavePrepMotorC:
 		ret
 SendLambda:
 		;*	Mando al slave para que inicie la se prepare a leer lambda
+		
 		SendInstruction 'a'
 	
-		SendData r1
-		SendData r0
+		SendData r1;paso la parte alta de lambda 
+		SendData r0; paso la parte baja de lambda
 		
 		ret
 
 PutEepromData:
+		
 		SetLcdClearAtHome
-		;* cargo un contador para los 5 datos
+		;* cargo un contador para el unico dato
 		ldi 	delay,1
 start88:
 		;* Mando instruccion de lectura
@@ -117,6 +119,7 @@ start88:
 		SendInstruction 'f'
 		;* Cargo el dato en argumento para llevar al lcd
 		mov		Yh,tmp
+
 		SendInstruction 'e'
 		
 		;* Cargo el dato en argumento para llevar al lcd

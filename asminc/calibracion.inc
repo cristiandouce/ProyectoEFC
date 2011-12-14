@@ -14,8 +14,9 @@
 calibracion:
             ldi Xl,low(cant_pasos)
             ldi Xh,high(cant_pasos)
-            ld r25,X+;contador decremental
-            ld r24,X
+            ;cantidad de pasos esta al reves,primero el low despues el high
+            ld r24,X+;contador decremental
+            ld r25,X
             clr Yh;contador incremental, da la posicion dl motor
             clr Yl;
             clr max
@@ -28,7 +29,7 @@ cal:
             brcs actualizar_maximo
 cont:       adiw Yh:Yl,1;incremento la posicion del vector
             rcall stepforth;avanzo un paso con el motor
-            rcall delayY
+            ;rcall delayY
             sbiw r25:r24,1;disminuyo el contador
             brne cal
 

@@ -189,8 +189,8 @@ sensor:
 		rcall READpixel 
 		
 		;ahora recibo los pixeles por la usart
-		ldi key,102;
-		
+		ldi tmp,102;
+		mov counter,tmp
         
 ;mejorar esta parte con un ret antes y llamando
 ; a recibir independientemente del proceso del sensor
@@ -366,7 +366,7 @@ llenar:
        rcall USART_MSPIM_Transfer
        rcall c_bytes
        rcall saco2
-       dec key
+       dec counter
        brne llenar
        ldi rtn,0;esto es para poder salir de cargo_bytes
        rjmp fin                            
