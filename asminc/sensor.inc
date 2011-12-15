@@ -85,9 +85,10 @@ sensor_configuracion:
         ldi dta,0xFE
 		rcall USART_MSPIM_Transfer
 		
-		ldi dta,0x00;
+		;le pongo -1 d offset
+		ldi dta,0xFE;
 		rcall USART_MSPIM_Transfer
-        ldi dta,0xFE
+        ldi dta,0xFF
         rcall USART_MSPIM_Transfer
 
 
@@ -112,9 +113,9 @@ sensor_configuracion:
 
 
 
-		ldi dta,0x00;
+		ldi dta,0xFE;
 		rcall USART_MSPIM_Transfer
-        ldi dta,0xFE
+        ldi dta,0xFF
         rcall USART_MSPIM_Transfer
 		
 		;Middle gain
@@ -137,9 +138,9 @@ sensor_configuracion:
 		ldi dta,0xFE
 		rcall USART_MSPIM_Transfer
 
-		ldi dta,0x00;
+		ldi dta,0xFE;
 		rcall USART_MSPIM_Transfer
-        ldi dta,0xFE
+        ldi dta,0xFF
         rcall USART_MSPIM_Transfer
 
 		;Right gain
@@ -204,20 +205,6 @@ sensor:
 		rcall procesar_lectura
 		ret
 
-;*****************************************************************
-;*	"relojSensor"
-;*	Simula un clock para el sensor.
-;*	Usa el puerto D (control) para simular clock asincronico.
-;*****************************************************************
-
-relojSensor: sbi control,sclk
-             cbi control,sclk  
-             sbis TIFR0,0
-             rjmp relojSensor
-			 cbi TIFR0,0;pongo d nuevo el flag en cero
-			 ldi tmp,0x00
-	         out TCCR0B,tmp;apago el timer
-			 ret
 
 
 
@@ -341,10 +328,15 @@ ret
 cargo_bytes:
            ldi dta,0xFF
            rcall USART_MSPIM_Transfer
+
+           ;variable q se llena bit a bit con los datos dl sensor
            clr aux
+          
            rcall funcion_comienzo
+
            cpi rtn,9
            breq cargo_bytes
+           
            ret
   
   ;#####################################
@@ -365,6 +357,7 @@ llenar:
        ldi dta,0xFF
        rcall USART_MSPIM_Transfer
        rcall c_bytes
+	   rcall cargo_variable
        rcall saco2
        dec counter
        brne llenar
@@ -385,14 +378,50 @@ rotation:
         brne rotation
         ret       
 saco2:
-      ror dta
-      inc rtn
-      ror dta
-      inc rtn
+     ldi arg,8
+	 sub arg,rtn
+	 cpi arg,1
+	 breq resto1
+     cpi arg,0
+	 breq pidouno_RotoDos
+	 ror dta
+     inc rtn
+     ror dta
+     inc rtn
+ salite:
+      ret
+resto1:
+     inc rtn;dio 8
+	 ror dta
+	 clr rtn
+     rcall pidouno_rotouno
+	 rjmp salite
+
+
+cargo_variable:
       st X+,aux
       clr aux
       ret
+
  pido_dato:
        ldi dta,0xFF
        rcall USART_MSPIM_Transfer
+	   clr rtn;esto es porque no hay rotaciones
        rjmp llenar
+
+
+pidouno_rotouno:
+       ldi dta,0xFF
+       rcall USART_MSPIM_Transfer
+	   inc rtn
+	   ror dta
+	   ret
+pidouno_RotoDos:
+       clr rtn
+	   ldi dta,0xFF
+       rcall USART_MSPIM_Transfer
+	   inc rtn
+	   ror dta
+	   inc rtn
+	   ror dta
+	   rjmp salite

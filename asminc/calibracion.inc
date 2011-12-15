@@ -27,10 +27,18 @@ cal:
                    
             cp max,rtn
             brcs actualizar_maximo
-cont:       adiw Yh:Yl,1;incremento la posicion del vector
+
+cont:          
+            ldi tmp,10             
+vuelta_diez: 
+            adiw Yh:Yl,1;incremento la posicion del vector
+          
             rcall stepforth;avanzo un paso con el motor
-            ;rcall delayY
-            sbiw r25:r24,1;disminuyo el contador
+            rcall delayY
+            dec tmp
+            brne cont
+
+            sbiw r25:r24,10;disminuyo el contador
             brne cal
 
             ret
@@ -70,8 +78,9 @@ voy_al_comienzo:
                                 
 	   	     ldi Xl,low(cant_pasos)
            ldi Xh,high(cant_pasos)
-           ld Yh,X+;guardo en y la cantidad de pasos
-           ld Yl,X
+           ;guardo en y la cantidad de pasos
+           ld Yl,X+
+           ld Yh,X
            mov r1,Yh
            mov r0,Yl
            rcall resta
@@ -102,7 +111,9 @@ x_pasos:
             sbiw r25:r24,1
             brne x_pasos
        	    rjmp sigo_midiendo 
-f:      	ret
+
+f:      	  rcall contarpasos
+            ret
 
  ;*****************************************************************
 ;*	"conversion"

@@ -208,8 +208,8 @@ Lambda_Ret:
 		ldi 	zh,high(valor_lambda<<1)
 		st 		z+,yh
 		st 		z,yl
-		;rjmp 	comunicateC
-		rjmp 	comunicateA
+		rjmp 	comunicateC
+		;rjmp 	comunicateA
 idle:
 		ret
 

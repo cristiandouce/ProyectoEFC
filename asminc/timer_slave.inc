@@ -37,8 +37,8 @@
 ;*	Setea tiempo segun parametro en arg
 ;*****************************************************************
 
-timer:ldi tmp,0x04
-	  out TCCR0B,tmp;divido la frecuencia por 256 y prendo el timer
+timer:ldi tmp,0x01
+	  out TCCR0B,tmp;sin prescaler y prendo el timer
       out TCNT0,arg;digo cuanto voy a contar
 	  rcall contador
 	  ldi tmp,0x00
