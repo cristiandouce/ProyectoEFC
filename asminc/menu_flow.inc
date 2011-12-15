@@ -279,63 +279,40 @@ tsloop10:
 		ldi		Xl,low(Calibra<<1)
 		rjmp 	ShowScreen
 
-;comunicateC:		
-		;		SetLcdClearAtHome
-		;		rcall SlaveSensorInit
-		;		rcall PutSensorData
-		;		ldi		Zh,high(sEnviandoPC<<1)
-		;		ldi		Zl,low(sEnviandoPC<<1)
-		;		rcall	LCD_Putstring
-		;        MoveCalibraTo 4
-		;        ldi arg,'m'
-		;        rcall EEPROM_write
-		;        MoveCalibraTo 5
-		;        ldi arg,'a'
-		;        rcall EEPROM_write
-		;        MoveCalibraTo 6
-		;        ldi arg,'y'
-		;       	rcall EEPROM_write
-		;        MoveCalibraTo 6
-		;       	rcall EEPROM_read
-		;        mov arg,rtn
-		;        rcall USART_Transmit
-		;
-		;
-		;        MoveCalibraTo 5
-		;        rcall EEPROM_read
-		;        mov arg,rtn
-		;        rcall USART_Transmit
-		;        
-		;        MoveCalibraTo 4
-		;        rcall EEPROM_read
-		;        mov arg,rtn
-		;        rcall USART_Transmit
-		;
-		;		ldi arg,'a'
-		;		rcall USART_Transmit
-		;		ldi arg,'h'
-		;		rcall USART_Transmit
-		;		ldi arg,'o'
-		;		rcall USART_Transmit
-		;		ldi arg,'r'
-		;		rcall USART_Transmit
-		;		ldi arg,'a'
-		;		rcall USART_Transmit
-		;		ldi arg,'!'
-		;		rcall USART_Transmit
-		;		SetLcdClearAtHome
-		;		ldi		arg,'>'
-		;		rcall 	lcd_putc
-		;		ldi		Zh,high(sDone<<1)
-		;		ldi		Zl,low(sDone<<1)
-		;
-		;		rcall	LCD_Putstring
-		;		rcall delay1s
-		;		rcall delay1s
-		;
-		;		ldi		Xh,high(Calibra<<1)
-		;    	ldi		Xl,low(Calibra<<1)
-		;		rjmp 	ShowScreen
+comunicateC:		
+		SetLcdClearAtHome
+		rcall SlaveSensorInit
+		rcall PutSensorData
+		ldi		Zh,high(sEnviandoPC<<1)
+		ldi		Zl,low(sEnviandoPC<<1)
+		rcall	LCD_Putstring
+        
+
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'h'
+		rcall USART_Transmit
+		ldi arg,'o'
+		rcall USART_Transmit
+		ldi arg,'r'
+		rcall USART_Transmit
+		ldi arg,'a'
+		rcall USART_Transmit
+		ldi arg,'!'
+		rcall USART_Transmit
+		SetLcdClearAtHome
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+
+		rcall	LCD_Putstring
+		rcall delay1s
+		rcall delay1s
+
+		ldi		Xh,high(Calibra<<1)
+    	ldi		Xl,low(Calibra<<1)
+		rjmp 	ShowScreen
 
 slLambda:
 		secondline
@@ -479,46 +456,3 @@ dispintensidad:
 		ret
 
 
-
-;*****************************************************************
-
-;*****************************************************************
-;*****************************************************************
-;*				Rutinas para trabajar con EEPROM
-;*****************************************************************
-;*****************************************************************
-
-;*****************************************************************
-;*	"EEPROM_write"
-;*	Escribe en memoria EEPROM.
-;*	Recibe en r25:r24 la direccion sobre la cual escribir
-;* 	y guarda el valor transportado dentro de 'arg'
-;*****************************************************************
-
-EEPROM_write:
-		; Wait for completion of previous write
-		sbic EECR,EEPE 
-		rjmp EEPROM_write ; Set up address (r25:r24) in address register 
-		out EEARH, r25 
-		out EEARL, r24 ; Write data (arg) to Data Register 
-		out EEDR,arg ; Write logical one to EEMPE 
-		sbi EECR,EEMPE ; Start eeprom write by setting EEPE 
-		sbi EECR,EEPE 
-		ret
-
-;*****************************************************************
-;*	"EEPROM_read"
-;*	Escribe en memoria EEPROM.
-;*	Recive en r25:r24 la direccion de la cual leer
-;* 	y lee el valor en memoria devolviendolo en 'rtn'
-;*****************************************************************
-
-EEPROM_read:
-		; Wait for completion of previous write
-		sbic EECR,EEPE 
-		rjmp EEPROM_read ; Set up address (r25:r24) in address register 
-		out EEARH, r25 
-		out EEARL, r24 ; Start eeprom read by writing EERE 
-		sbi EECR,EERE ; Read data from Data Register 
-		in rtn,EEDR 
-		ret

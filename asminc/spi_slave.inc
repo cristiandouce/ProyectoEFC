@@ -149,8 +149,8 @@ ReadSensor:
 		out	SPDR,tmp
         rcall sensor_reset;
 		rcall sensor
-		ldi	Xl,low(promedio);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(promedio)
+		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(var)
 		rjmp	return_interrupt
 
 MotorUp:
@@ -161,7 +161,7 @@ MotorDown:
 		rjmp return_interrupt
 
 SendSensorData:
-		ld tmp,X
+		ld tmp,X+
 		out SPDR,tmp
 		rjmp	return_interrupt	
 
