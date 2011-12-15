@@ -29,17 +29,17 @@ cal:
             brcs actualizar_maximo
 
 cont:          
-            ldi tmp,10             
+            ldi delay,10             
 vuelta_diez: 
             adiw Yh:Yl,1;incremento la posicion del vector
           
             rcall stepforth;avanzo un paso con el motor
             rcall delayY
-            dec tmp
-            brne cont
+            dec delay
+            brne vuelta_diez
 
             sbiw r25:r24,10;disminuyo el contador
-            brne cal
+            brmi cal
 
             ret
 
@@ -72,9 +72,7 @@ voy_al_comienzo:
            rcall delayY
            sbiw r25:r24,1
            brne voy_al_comienzo
-                 
-          
-           
+
                                 
 	   	     ldi Xl,low(cant_pasos)
            ldi Xh,high(cant_pasos)

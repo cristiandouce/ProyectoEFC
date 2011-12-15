@@ -129,48 +129,22 @@ lLamp:
 
 check_keys:
 		;reseteo las flags de las keys
-		rcall delayX
+		rcall delay200ms
 		cbr		fla,maskRESET
 		;leo el puerto C
 		in		tmp,PINC
 		;si está presionado un boton va a quedar en 0 ese bit
 		sbrs	tmp,switchUP
-		rjmp	keyUP
+		rjmp	pressUP
 		sbrs	tmp,switchDW
-		rjmp	keyDW
+		rjmp	pressDOWN
 		sbrs	tmp,switchRT
-		rjmp	keyRT
-		sbrc	tmp,switchUP
-		sbr		key,maskUP
-		sbrc	tmp,switchDW
-		sbr		key,maskDW
-		sbrc	tmp,switchRT
-		sbr		key,maskRT
+		rjmp	pressRET
 		;si no se presiono nada me vuelvo a fijar
 		;luego de esperar por posibles rebotes
 		
 		rjmp	check_keys
 		
-keyUP:
-		;se presiono key UP si no estaba presionada antes seteo el flag y voy al mainloop, si si vuelvo
-		;sbrs	key,switchUP
-		;rjmp	check_keys
-		cbr		key,maskUP
-		sbr		fla,maskUP
-		rjmp	PressUp
-keyDW:
-		;sbrs	key,switchDW
-		;rjmp	check_keys
-		cbr		key,maskDW
-		sbr		fla,maskDW
-		rjmp	PressDown
-keyRT:
-		;sbrs	key,switchRT
-		;rjmp	check_keys
-		cbr		key,maskRT
-		sbr		fla,maskRT
-		rjmp	PressRet
-
 toLambda:
 		clr 	yh
 		clr 	yl
@@ -202,13 +176,16 @@ set0:
 		rjmp 	ShowScreen
 
 Lambda_Ret:
+		ldi 	tmp, 0x90
+		add 	yl,tmp
+		ldi 	tmp,0x01
+		adc 	yh,tmp
 		rjmp 	comunicateA
 idle:
 		ret
 
 comunicateA:
-        mov r1,wrdh;hago una copia de seguridad del valor de lambda
-        mov r0,wrdl
+        movw r1:r0,yh:yl;hago una copia de seguridad del valor de lambda
         
         ;Muestro el valor seleccionado de lambda nuevamente en el display
 
@@ -227,51 +204,15 @@ tsloop10:
 		brne tsloop10
 		rcall delay1s
 		rcall delay1s
- 
-		      
-        ldi arg,'c'
-		rcall USART_Transmit
-		ldi arg,'a'
-		rcall USART_Transmit
-		ldi arg,'l'
-		rcall USART_Transmit
-		ldi arg,'i'
-		rcall USART_Transmit
-		ldi arg,'b'
-		rcall USART_Transmit
-		ldi arg,'r'
-		rcall USART_Transmit
-		ldi arg,'a'
-		rcall USART_Transmit
-		ldi arg,'d'
-		rcall USART_Transmit
-		ldi arg,'o'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-
 
 		rcall SendLambda
-        ;rcall PutEepromData
-       
-		
-
+        
 		SetLcdClearAtHome
 		ldi		arg,'>'
 		rcall 	lcd_putc
 		ldi		Zh,high(sDone<<1)
 		ldi		Zl,low(sDone<<1)
-
 		rcall	LCD_Putstring
-
-		rcall delay1s
-		rcall delay1s
-
-		
 
 		rcall delay1s
 
@@ -285,8 +226,7 @@ comunicateC:
 		rcall PutSensorData
 		ldi		Zh,high(sEnviandoPC<<1)
 		ldi		Zl,low(sEnviandoPC<<1)
-		rcall	LCD_Putstring
-        
+		rcall	LCD_Putstring 
 
 		ldi arg,'a'
 		rcall USART_Transmit
