@@ -84,8 +84,6 @@ SPI_WAIT_FOR_SLAVE:
 SlaveSensorInit:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 's'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
 
 		
@@ -143,22 +141,25 @@ tsloop88:
 		ret
 
 PutSensorData:
+		ldi 	dtal,0x1
+		ldi 	dta,0x91
+		ldi		Zh,high(datos)
+		ldi		Zl,low(datos)
+start:	;st 		z+,yl
 		;* cargo un contador para los 5 datos
-		ldi 	delay,102
-start:
+		;ldi 	delay,102
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'd'
 		
 		;* Cargo el dato en argumento para llevar al lcd
-		mov		arg,tmp
+		st 		z+,tmp
 		clr Yh
-		mov Yl,arg
+		mov Yl,tmp
 		movw	rBin1H:rBin1L,Yh:Yl
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
-		
 		ld	arg,Z+
 		ld	arg,Z+
 		ldi tmp,3
@@ -171,9 +172,8 @@ tsloop:
 		brne tsloop
 		ldi arg,','
 		rcall USART_Transmit
-
 		;* Decremento el contador
-		dec 	delay
+		sbiw	dtal:dta,1
 		brne 	start
 		ret
 
