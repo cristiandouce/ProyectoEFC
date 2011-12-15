@@ -58,7 +58,7 @@
 ;*****************************************************************
 	.dseg
 		buffer: 		.byte 	5
-		datos: 			.byte 	200
+		datos: 			.byte 	800
 		valor_lambda:	.byte 	2
 
 ;*****************************************************************
@@ -66,12 +66,12 @@
 ;*****************************************************************
    
 .cseg
-	.org 0x0F00    									
+	.org 0x0400    									
 
 		;direccion:			prev(2)//next(2)//return(2)//firstlinehandler//secondlinehandler//fstline//scdline
 		Lectura:	.db		high(check_keys),low(check_keys),high(lCalibra),low(lCalibra),high(ComunicateL),low(ComunicateL),high(flstd),low(flstd),high(slstd),low(slstd),high(sLectura<<1),low(sLectura<<1),high(sCalibra<<1),low(sCalibra<<1)
 		sLectura:	.db 	"Lectura",fst
-		Resultados: .db 	high(res_up),low(res_up),high(res_down),low(res_down),high(lLectura),low(lLectura),high(displongond),low(displongond),high(dispintensidad),low(dispintensidad),0,0,0,0
+		Resultados: .db 	high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(lLectura),low(lLectura),high(dispintensidad),low(dispintensidad),high(slLambda),low(slLambda),0,0,0,0
 		Calibra:	.db		high(lLectura),low(lLectura),high(lProbarM),low(lProbarM),high(toLambda),low(toLambda),high(flstd),low(flstd),high(slstd),low(slstd),high(sCalibra<<1),low(sCalibra<<1),high(sProbarM<<1),low(sProbarM<<1)
 		MotorM: 	.db		high(mot_up),low(mot_up),high(mot_down),low(mot_down),high(lProbarM),low(lProbarM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbando<<1),low(sProbando<<1),high(sProbando<<1),low(sProbando<<1)
 		sProbando: 	.db 	"Probando motor",fst
@@ -91,5 +91,7 @@
 		sExp:		.db		"Exportar a PC? ",fst
 		sDone:		.db		"Listo",fst
 		sError:		.db		"Error!!",fst
+		sLo: 		.db 	"L.O.:",fst
+		sInt: 		.db		"Int.:",fst
 		sEnviandoPC:.db		"Enviando a la PC",fst
  
