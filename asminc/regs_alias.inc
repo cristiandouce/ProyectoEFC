@@ -43,7 +43,7 @@
 								;b3:switchDWon ;b4:switchRTon; b5:on/off; b6-7 tipo de menu
 	.def	key		=	r24
 	.def	dta		=	r22		
-	.def 	dtal	=	r23	
+	.def 	dtah	=	r23	
 	.def    aux     =	r21
 
 	.def 	con		=	r25		; hay que reemplazar por r[0-15]

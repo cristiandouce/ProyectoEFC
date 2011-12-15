@@ -321,8 +321,8 @@ slLambda:
 		ldi 	zl,low(sLo<<1)
 		rcall 	LCD_PutString
 		ldi 	dta,0x1
-		ldi 	dtal,0x90
-		add 	wrdl,dtal
+		ldi 	dtah,0x90
+		add 	wrdl,dtah
 		adc 	wrdh,dta
 		movw	rBin1H:rBin1L,wrdh:wrdl
 		ldi     Zh,high(buffer)
@@ -370,7 +370,7 @@ floop:	st 		z+,yl
 ComunicateQ:
 		SetLcdClearAtHome 		
 		rcall 	getmotorcount
-		movw	rBin1H:rBin1L,dtal:dta
+		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
@@ -446,9 +446,9 @@ dispintensidad:
 		ldi 	zl,low(datos)
 		add 	zl,yl
 		adc 	zh,yh
-		clr 	dtal
+		clr 	dtah
 		ld 		dta,z+
-		movw	rBin1H:rBin1L,dtal:dta
+		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5

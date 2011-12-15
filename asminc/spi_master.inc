@@ -141,7 +141,7 @@ tsloop88:
 		ret
 
 PutSensorData:
-		ldi 	dtal,0x1
+		ldi 	dtah,0x1
 		ldi 	dta,0x91
 		ldi		Zh,high(datos)
 		ldi		Zl,low(datos)
@@ -173,7 +173,7 @@ tsloop:
 		ldi arg,','
 		rcall USART_Transmit
 		;* Decremento el contador
-		sbiw	dtal:dta,1
+		sbiw	r25:r24,1
 		brne 	start
 		ret
 
@@ -185,7 +185,7 @@ GetMotorCount:
 		SendInstruction 'c'
 		mov dta,tmp
 		SendInstruction 'c'
-		mov dtal,tmp
+		mov dtah,tmp
 		ret
 
 SlaveMotorInit:
