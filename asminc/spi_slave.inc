@@ -40,7 +40,7 @@
     .equ    posMinLambdaHigh=11
     .equ    posMinLambdaLow=12 
     .equ    sentido_giro=13
-    .equ    velmotor=0x15
+    .equ    velmotor=0x04
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con SPI
@@ -224,6 +224,36 @@ preparacalibrar:
 		ldi 	tmp2,4
 		rjmp return_interrupt;sino, no tengo nada q calibrar
 
+tercer_calibracion:
+         MoveCalibraTo lambda1High
+         mov arg,lambdah
+         rcall EEPROM_write
+         
+         MoveCalibraTo lambda1Low
+         mov arg,lambdal
+         rcall EEPROM_write        
+
+        rcall calibracion
+        
+        
+        MoveCalibraTo calibra1High        
+        ldi Xh,high(pos_max)
+        ldi Xl,low(pos_max)
+        ld tmp,X+
+        mov arg,tmp
+        rcall EEPROM_write
+        MoveCalibraTo calibra1Low
+        ld tmp,X
+        mov arg,tmp
+        rcall EEPROM_write
+
+
+        MoveCalibraTo estado
+        ldi arg,1
+        rcall EEPROM_write
+        rcall conversion
+        rjmp return_interrupt
+
 calibrar:
         MoveCalibraTo estado;veo el estado d la calibracion 
         rcall EEPROM_read 
@@ -305,35 +335,6 @@ segunda_calibracion:
         rjmp return_interrupt   
  
 
-tercer_calibracion:
-         MoveCalibraTo lambda1High
-         mov arg,lambdah
-         rcall EEPROM_write
-         
-         MoveCalibraTo lambda1Low
-         mov arg,lambdal
-         rcall EEPROM_write        
-
-        rcall calibracion
-        
-        
-        MoveCalibraTo calibra1High        
-        ldi Xh,high(pos_max)
-        ldi Xl,low(pos_max)
-        ld tmp,X+
-        mov arg,tmp
-        rcall EEPROM_write
-        MoveCalibraTo calibra1Low
-        ld tmp,X
-        mov arg,tmp
-        rcall EEPROM_write
-
-
-        MoveCalibraTo estado
-        ldi arg,1
-        rcall EEPROM_write
-        rcall conversion
-        rjmp return_interrupt
 
 
 

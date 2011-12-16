@@ -78,7 +78,7 @@ lectura:
            mov r2,rtn
 voy_al_comienzo:
            rcall stepforth
-           ldi tmp2,0x08
+           ldi tmp2,velmotor
            rcall delaycus
            sbiw contH:contL,1
            brne voy_al_comienzo
