@@ -31,8 +31,6 @@ MENU_init:
 		ldi 	Yh,0x00
 		ldi 	Yl,0x01
 		ldi tmp,1
-		ldi key,0xff
-		ldi fla,0x00
 		;seteo posición inicial del menu
 		ldi		Xh,high(Lectura<<1)
 		ldi		Xl,low(Lectura<<1)

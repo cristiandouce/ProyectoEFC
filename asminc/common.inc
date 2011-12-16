@@ -68,21 +68,20 @@ delay1s:
 		ret
 
 ;*****************************************************************
-;*	"delayY"
+;*	"delaycus"
 ;*	Rutina de DELAY
-;*	Duracion de 255us aprox
+;*	Duracion variable tmp2*255us
 ;*****************************************************************
 
 
-delayY:
-			ldi tmp,0x02
-			mov r9,tmp
-delayY_outer:
+delaycus:
+			mov r9,tmp2
+delaycus_outer:
 			clr	r5
-delayY_inner:
+delaycus_inner:
 			dec r5
-			brne delayY_inner 		; sale del ciclo si r3 es igual a cero
+			brne delaycus_inner 		; sale del ciclo si r3 es igual a cero
 			dec	r9						;cuando ya hizo 255us decremento r2
-			brne delayY_outer 		;sale dl ciclo si r2 es igual a cero
+			brne delaycus_outer 		;sale dl ciclo si r2 es igual a cero
 			ret
 

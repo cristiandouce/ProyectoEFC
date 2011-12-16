@@ -31,12 +31,12 @@
 
 contarpasos: 	clr   	Yl
 				clr		Yh
-iniciarmotor1:	rcall 	stepforth
-				rcall 	delayY
+iniciarmotor1:	ldi 	tmp2,velmotor
+				rcall 	delaycus
+				rcall 	stepforth
 				in 		tmp, PINB
 				ldi 	aux, 0b00000010
 				and 	tmp, aux
-				cpi 	tmp, 0
 				brne 	iniciarmotor1
 testpasos:
 				; Cada cuantos pasos cuento
@@ -44,11 +44,11 @@ testpasos:
 				; Empiezo inicializacion y
 				; cuento los pasos en el camino
 iniciarmotor2:	rcall 	stepback
-				rcall 	delayY
+				ldi 	tmp2,velmotor
+				rcall 	delaycus
 				in 		tmp, PINC
 				ldi 	aux, 0b00100000
 				and 	tmp, aux
-				cpi 	tmp, 0
 				breq 	terminarmotor
 				dec 	r23
 				brne 	iniciarmotor2
@@ -59,6 +59,7 @@ terminarmotor:	ldi 	xh, high(cant_pasos)
 				ldi 	xl, low(cant_pasos)
 				st 		X+, Yl
 				st 		X+, Yh
+				clr tmp2
 				ret
 
 
@@ -69,7 +70,10 @@ terminarmotor:	ldi 	xh, high(cant_pasos)
 ;*****************************************************************
 
 stepforth:
-		
+		in 		tmp, PINB
+		ldi 	aux, 0b00000010
+		and 	tmp, aux
+		breq 	stopf
 		movw 	Zh:Zl, wrdh:wrdl
 		lpm 	tmp, Z+
 		in 		aux, portc
@@ -79,8 +83,7 @@ stepforth:
 		adiw	ZH:ZL, 2
 		lpm		wrdh, Z+
 		lpm		wrdl, Z+
-		ret
-
+stopf:	ret
 
 ;*****************************************************************
 ;*	"stepback"
@@ -89,6 +92,10 @@ stepforth:
 ;*****************************************************************
 
 stepback:
+		in 		tmp, PINC
+		ldi 	aux, 0b00100000
+		and 	tmp, aux
+		breq 	stopb
 		movw 	Zh:Zl, wrdh:wrdl
 		lpm 	tmp, Z+
 		in 		aux, PortC
@@ -97,4 +104,4 @@ stepback:
 		out 	PortC, tmp
 		lpm		wrdh, Z+
 		lpm		wrdl, Z+
-		ret
+stopb:	ret

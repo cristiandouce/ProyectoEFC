@@ -96,28 +96,8 @@ MAIN:
         sbi PORTB,0
         sbi PORTB,1
         sbi PORTC,5
-
 		sbi DDRC,4 ;configuro SlaveStatus como salida
         sbi PORTC,4
-
-        ;* Posicion inicial motor
-        ldi tmp,low(posicion1<<1)
-		mov wrdl,tmp
-		ldi tmp,high(posicion1<<1)
-		mov wrdh,tmp
-
-		;* Inicializa motor
-								; Lo que conviene es lo siguiente:
-								; El master cuando inicia
-								; envia una instruccion al slave de iniciar motor
-								; este puede devolver ok (si termina)
-								; o error (si no puede o lo que sea)
-								; Cuestion:
-								; Mientras el motor se inicializa
-								; el master muestra en pantalla
-								; "Iniciando motor!!"
-								; "Espere por favor..."
-		rcall contarpasos
 
 
 		;* Inicializo comunicacion SPI
@@ -126,11 +106,13 @@ MAIN:
 		;* Inicio y configuro el Sensor
 		rcall sensor_Init
 		
+		;* Inicio mi registro ZERO
+		clr zero
 
 		;* Espero instrucciones del master
 		ldi	Xl,low(cant_pasos)
 	    ldi	Xh,high(cant_pasos)
-	    clr fla
+	    clr tmp2
 	    ;lo pongo en cero
 	    MoveCalibraTo estado
         ldi arg,0

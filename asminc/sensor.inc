@@ -172,6 +172,7 @@ sensor_reset: ldi dta,0x36			;codigo dl reset
 ;*	"sensor"
 ;*	Rutina ejecuta integracion y lectura del sensor.
 ;*	Guarda en la variable var los 102 pixeles leidos.
+;*  Tambien llama a procesar_lectura
 ;*****************************************************************
 sensor:
 
@@ -247,7 +248,7 @@ STARTint:
 procesar_lectura:
 				 ldi 	Xh,high(var)
 				 ldi 	Xl,low(var)
-	             clr r4
+	             clr high_suma
 	             ldi tmp,34
 mitad:           ld aux,X+
 				 dec tmp
@@ -257,7 +258,7 @@ mitad:           ld aux,X+
 				 ldi tmp,31
 sumar:           ld aux,X+
 				 add low_suma,aux
-	             adc high_suma,r4
+	             adc high_suma,zero
 	             dec tmp
 	             brne sumar       
 	             ldi tmp, 5
@@ -268,9 +269,15 @@ divide_by_two:   lsr high_suma
                  ldi Xl,low(promedio)
                  ldi Xh,high(promedio)
                  st X,low_suma
-                 ld rtn,X
-                 ret          
-                 
+
+                 mov rtn,low_suma
+          
+                                  
+                 ldi Xh,high(var)
+                 ldi Xl,low(var)
+                 ret
+
+>>>>>>> be1db7d40bae709ff56374fa084f1d3e135625b5
 ;####################################################3
 SAMPLEinit:
         ldi dta,0x20

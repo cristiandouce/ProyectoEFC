@@ -32,7 +32,7 @@
 	.dseg
 		var:	.byte	6
 	cant_pasos: .byte 	2
-
+	datoscalibracion: .byte 13
 	.cseg
 	.org 0
 		rjmp 	RESET
@@ -71,6 +71,8 @@ MAIN:
 		;* Inicio el USART 
 		rcall 	Usart_Init
 		
+		;*	Inicio el motor
+		rcall	SlaveMotorInit
 		;* Ordeno el inicio del Menu
 		rcall	MENU_init
 

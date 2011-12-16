@@ -81,32 +81,44 @@ SPI_WAIT_FOR_SLAVE:
 
 ;* esto hay que meterlo en otro inc, asi como todo el
 ;* codigo opciones del menu y manejarlo con includes
-SlaveSensorInit:
+StartReading:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 's'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
 
 		
 SlavePrepMotorC:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'p'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
+
 SendLambda:
 		;*	Mando al slave para que inicie la se prepare a leer lambda
-		
 		SendInstruction 'a'
-	
 		SendData r1;paso la parte alta de lambda 
 		SendData r0; paso la parte baja de lambda
-		
+		ret
+
+geteprom:
+		sendinstruction 'o'
+		ldi 	delay,13
+		ldi 	Zh,high(datoscalibracion)
+		ldi 	Zl,low(datoscalibracion)
+loopepr:sendinstruction 'l'
+		st z+,tmp
+		dec delay
+		brne	loopepr
+		ret
+
+SetEepromReset:
+		sendinstruction 'r'
+		ret
+
+SetEepromFake:
+		sendinstruction 'b'
 		ret
 
 PutEepromData:
-		
 		SetLcdClearAtHome
 		;* cargo un contador para el unico dato
 		ldi 	delay,1
@@ -139,26 +151,26 @@ tsloop88:
 		ldi arg,','
 		rcall USART_Transmit
 		;* Decremento el contador
-
 		ret
 
-PutSensorData:
-		;* cargo un contador para los 5 datos
-		ldi 	delay,102
-start:
+SaveReading:
+		ldi 	contH,0x1
+		ldi 	ContL,0x91;de 400 a 800 inclusive
+		ldi		Zh,high(datos)
+		ldi		Zl,low(datos)
+start:	;st 		z+,yl
+		;ldi 	delay,102
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'd'
-		
 		;* Cargo el dato en argumento para llevar al lcd
-		mov		arg,tmp
+		st 		z+,tmp
 		clr Yh
-		mov Yl,arg
+		mov Yl,tmp
 		movw	rBin1H:rBin1L,Yh:Yl
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
-		
 		ld	arg,Z+
 		ld	arg,Z+
 		ldi tmp,3
@@ -171,9 +183,8 @@ tsloop:
 		brne tsloop
 		ldi arg,','
 		rcall USART_Transmit
-
 		;* Decremento el contador
-		dec 	delay
+		sbiw	contH:contL,1
 		brne 	start
 		ret
 
@@ -181,18 +192,17 @@ GetMotorCount:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'p'
-		mov dta,tmp
 		SendInstruction 'c'
 		mov dta,tmp
 		SendInstruction 'c'
-		mov dtal,tmp
+		mov dtah,tmp
 		ret
 
 SlaveMotorInit:
 		;*	Mando al slave para que inicie la lectura del sensor
+		SetLCDClearAtHome
+		putstring sInimot
 		SendInstruction 'm'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
 
 
@@ -200,12 +210,8 @@ SlaveMotorInit:
 mot_down:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'j'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		rjmp 	ShowScreen
 mot_up:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'u'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		rjmp 	ShowScreen

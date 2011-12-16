@@ -77,11 +77,6 @@ jumper:
 		LoadWord
 		ijmp
 
-setandshow:;revisar
-		movw	Yh:Yl,Xh:Xl
-		rjmp 	ShowScreen
-	
-
 PressUp:
 		movw	Zh:Zl,Xh:Xl
 		rjmp	jumper
@@ -93,7 +88,6 @@ PressRet:
 		movw	Zh:Zl,Xh:Xl
 		MoveZTo	(fwd)
 		rjmp	jumper
-
 
 switchLamp:
 		sbis 	PORTC,0
@@ -127,50 +121,37 @@ lLamp:
 		ldi		Xl,low(Lampara<<1)
 		rjmp	ShowScreen
 
+lVerCal:
+		ldi		Xh,high(VerCal<<1)
+		ldi		Xl,low(VerCal<<1)
+		rjmp	ShowScreen
+
+lResCal:
+		ldi		Xh,high(ResCal<<1)
+		ldi		Xl,low(ResCal<<1)
+		rjmp	ShowScreen
+
+lFakeCal:
+		ldi		Xh,high(FakeCal<<1)
+		ldi		Xl,low(FakeCal<<1)
+		rjmp	ShowScreen
+
 check_keys:
 		;reseteo las flags de las keys
-		rcall delayX
-		cbr		fla,maskRESET
+		rcall delay200ms
 		;leo el puerto C
 		in		tmp,PINC
 		;si está presionado un boton va a quedar en 0 ese bit
 		sbrs	tmp,switchUP
-		rjmp	keyUP
+		rjmp	pressUP
 		sbrs	tmp,switchDW
-		rjmp	keyDW
+		rjmp	pressDOWN
 		sbrs	tmp,switchRT
-		rjmp	keyRT
-		sbrc	tmp,switchUP
-		sbr		key,maskUP
-		sbrc	tmp,switchDW
-		sbr		key,maskDW
-		sbrc	tmp,switchRT
-		sbr		key,maskRT
+		rjmp	pressRET
 		;si no se presiono nada me vuelvo a fijar
 		;luego de esperar por posibles rebotes
-		
 		rjmp	check_keys
 		
-keyUP:
-		;se presiono key UP si no estaba presionada antes seteo el flag y voy al mainloop, si si vuelvo
-		;sbrs	key,switchUP
-		;rjmp	check_keys
-		cbr		key,maskUP
-		sbr		fla,maskUP
-		rjmp	PressUp
-keyDW:
-		;sbrs	key,switchDW
-		;rjmp	check_keys
-		cbr		key,maskDW
-		sbr		fla,maskDW
-		rjmp	PressDown
-keyRT:
-		;sbrs	key,switchRT
-		;rjmp	check_keys
-		cbr		key,maskRT
-		sbr		fla,maskRT
-		rjmp	PressRet
-
 toLambda:
 		clr 	yh
 		clr 	yl
@@ -202,14 +183,16 @@ set0:
 		rjmp 	ShowScreen
 
 Lambda_Ret:
-		;rjmp 	comunicateC
+		ldi 	tmp, 0x90
+		add 	yl,tmp
+		ldi 	tmp,0x01
+		adc 	yh,tmp
 		rjmp 	comunicateA
 idle:
 		ret
 
 comunicateA:
-        mov r1,wrdh;hago una copia de seguridad del valor de lambda
-        mov r0,wrdl
+        movw r1:r0,yh:yl;hago una copia de seguridad del valor de lambda
         
         ;Muestro el valor seleccionado de lambda nuevamente en el display
 
@@ -220,7 +203,6 @@ comunicateA:
 		ldi tmp,5
 		ld	arg,Z+
 tsloop10:	
-		rcall USART_Transmit
 		rcall LCD_Putc
 		ld	arg,Z+
 		dec tmp
@@ -228,51 +210,15 @@ tsloop10:
 		brne tsloop10
 		rcall delay1s
 		rcall delay1s
- 
-		      
-        ldi arg,'c'
-		rcall USART_Transmit
-		ldi arg,'a'
-		rcall USART_Transmit
-		ldi arg,'l'
-		rcall USART_Transmit
-		ldi arg,'i'
-		rcall USART_Transmit
-		ldi arg,'b'
-		rcall USART_Transmit
-		ldi arg,'r'
-		rcall USART_Transmit
-		ldi arg,'a'
-		rcall USART_Transmit
-		ldi arg,'d'
-		rcall USART_Transmit
-		ldi arg,'o'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-		ldi arg,'!'
-		rcall USART_Transmit
-
 
 		rcall SendLambda
-        ;rcall PutEepromData
-       
-		
-
+        
 		SetLcdClearAtHome
 		ldi		arg,'>'
 		rcall 	lcd_putc
 		ldi		Zh,high(sDone<<1)
 		ldi		Zl,low(sDone<<1)
-
 		rcall	LCD_Putstring
-
-		rcall delay1s
-		rcall delay1s
-
-		
 
 		rcall delay1s
 
@@ -282,12 +228,11 @@ tsloop10:
 
 comunicateC:		
 		SetLcdClearAtHome
-		rcall SlaveSensorInit
-		rcall PutSensorData
+		rcall StartReading
+		rcall SaveReading
 		ldi		Zh,high(sEnviandoPC<<1)
 		ldi		Zl,low(sEnviandoPC<<1)
-		rcall	LCD_Putstring
-        
+		rcall	LCD_Putstring 
 
 		ldi arg,'a'
 		rcall USART_Transmit
@@ -322,8 +267,8 @@ slLambda:
 		ldi 	zl,low(sLo<<1)
 		rcall 	LCD_PutString
 		ldi 	dta,0x1
-		ldi 	dtal,0x90
-		add 	wrdl,dtal
+		ldi 	dtah,0x90
+		add 	wrdl,dtah
 		adc 	wrdh,dta
 		movw	rBin1H:rBin1L,wrdh:wrdl
 		ldi     Zh,high(buffer)
@@ -333,7 +278,6 @@ slLambda:
 		ret
 
 comunicateM:
-		rcall 	SlaveMotorInit
 		ldi		Xh,high(MotorM<<1)
 		ldi		Xl,low(MotorM<<1)
 		rjmp 	ShowScreen
@@ -342,34 +286,100 @@ comunicateM:
 		
 ComunicateL:
 		SetLcdClearAtHome 		
-		;rcall 	SlaveSensorInit
-		;rcall 	PutSensorData
-		rcall   filldatos
-		;rcall	SlavePrepMotorC
-		;rcall 	getmotorcount
+		ldi 	zh,high(sBusy<<1)
+		ldi 	zl,low(sBusy<<1)
+		rcall 	LCD_PutString
+		rcall 	StartReading
+		rcall 	SaveReading
+		;rcall   filldatos
 		clr 	yh
 		clr 	yl
 		ldi		Xh,high(Resultados<<1)
 		ldi		Xl,low(Resultados<<1)
 		rjmp 	ShowScreen
-		ret
 
 filldatos:
 		ldi 	yh,0x1
-		ldi 	yl,0x90
+		ldi 	yl,0x91
 		ldi		Zh,high(datos)
 		ldi		Zl,low(datos)
-floop:	st 		z+,yh
-		st 		z+,yl
+floop:	st 		z+,yl
 		sbiw	Yh:Yl,1
 		brne 	floop
 		ret
 
+ComunicateV:
+		SetLCDClearAtHome
+		rcall 	geteprom
+		putstring sEstado
+		ldi 	Yh,high(datoscalibracion)
+		ldi 	Yl,low(datoscalibracion)
+		SECONDLINE
+		clr 	dtah
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,0
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,1
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,2
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,3
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,4
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,5
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,6
+		rcall 	delay1s
+		rcall 	delay1s
+		rjmp ShowScreen
+
+ComunicateR:
+		SetLCDClearAtHome
+		rcall 	setEepromReset
+
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+		rcall	LCD_Putstring
+		rcall delay1s
+		rjmp ShowScreen
+
+ComunicateF:
+		SetLCDClearAtHome
+		rcall 	setEepromFake
 		
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+		rcall	LCD_Putstring
+		rcall delay1s
+		rjmp ShowScreen
+
 ComunicateQ:
 		SetLcdClearAtHome 		
 		rcall 	getmotorcount
-		movw	rBin1H:rBin1L,dtal:dta
+		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
@@ -385,59 +395,58 @@ tsloop7:
 		rcall delay1s
 		rcall delay1s
 		rjmp 	ShowScreen
-;			
+			
 ;res_up:
  ;   	push xh
  ;   	push xl
  ;   	adiw Yh:Yl,1
-;		ldi Zh,high(datos)
-;		ldi Zl,low(datos)
-;		movw xh:xl,Yh:Yl
-;		sub xl,Zl
-;		sbc xh,Zh
-;		ldi Zh,high(cant_pasos)
-;		ldi Zl,low(cant_pasos)
-;		ld wrdh,Z+
-;		ld wrdl,Z+
-;		movw Zh:zl,wrdh:wrdl
-;		cp  Zl,xl
-;		cpc Zh,xh;
-;;		brlo OVERFLOWDATA;
-;;    	pop xl;
-;    	pop xh;
-;		rjmp 	ShowScreen;
-;;
-;OVERFLOWDATA:;
-;		pop xl;
-;		pop xh
-;		ldi Yh,high(datos)
-;		ldi Yl,low(datos)
-;		rjmp ShowScreen
-;
-;res_down:
-;    	ldi 	tmp,low(datos)
-;    	cpi	 	Yh,high(datos)
-;    	cpc 	Yl,tmp
-;    	breq 	UNDERFLOWDATA
-;		sbiw	Yh:Yl,1
-;    	rjmp ShowScreen
-
-	
-;UNDERFLOWDATA:
-;		ldi Zh,high(cant_pasos)
-;		ldi Zl,low(cant_pasos)
-;		ld wrdh,Z+
-;		ld wrdl,Z+
-;		movw Zh:Zl,wrdh:wrdl
-;		ldi Yh,high(datos)
-;		ldi Yl,low(datos)
-;		add Yl,Zl
-;		adc Yh,Zh
-;		rjmp ShowScreen
-		
+ ;		ldi Zh,high(datos)
+ ;		ldi Zl,low(datos)
+ ;		movw xh:xl,Yh:Yl
+ ;		sub xl,Zl
+ ;		sbc xh,Zh
+ ;		ldi Zh,high(cant_pasos)
+ ;		ldi Zl,low(cant_pasos)
+ ;		ld wrdh,Z+
+ ;		ld wrdl,Z+
+ ;		movw Zh:zl,wrdh:wrdl
+ ;		cp  Zl,xl
+ ;		cpc Zh,xh;
+ ;;		brlo OVERFLOWDATA;
+ ;;    	pop xl;
+ ;    	pop xh;
+ ;		rjmp 	ShowScreen;
+ ;;
+ ;OVERFLOWDATA:;
+ ;		pop xl;
+ ;		pop xh
+ ;		ldi Yh,high(datos)
+ ;		ldi Yl,low(datos)
+ ;		rjmp ShowScreen
+ ;
+ ;res_down:
+ ;    	ldi 	tmp,low(datos)
+ ;    	cpi	 	Yh,high(datos)
+ ;    	cpc 	Yl,tmp
+ ;    	breq 	UNDERFLOWDATA
+ ;		sbiw	Yh:Yl,1
+ ;    	rjmp ShowScreen
+ 
+ 	
+ ;UNDERFLOWDATA:
+ ;		ldi Zh,high(cant_pasos)
+ ;		ldi Zl,low(cant_pasos)
+ ;		ld wrdh,Z+
+ ;		ld wrdl,Z+
+ ;		movw Zh:Zl,wrdh:wrdl
+ ;		ldi Yh,high(datos)
+ ;		ldi Yl,low(datos)
+ ;		add Yl,Zl
+ ;		adc Yh,Zh
+ ;		rjmp ShowScreen
+ 		
 
 dispintensidad:
-		;secondline
 		ldi 	zh,high(sInt<<1)
 		ldi 	zl,low(sInt<<1)
 		rcall 	LCD_PutString
@@ -445,11 +454,9 @@ dispintensidad:
 		ldi 	zl,low(datos)
 		add 	zl,yl
 		adc 	zh,yh
-		add 	zl,yl
-		adc 	zh,yh
-		ld 		dtal,z+
+		clr 	dtah
 		ld 		dta,z+
-		movw	rBin1H:rBin1L,dtal:dta
+		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
