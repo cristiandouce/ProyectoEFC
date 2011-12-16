@@ -206,7 +206,7 @@ conversion:
  ;***************************************************************************************************************************************  
  ;*****************************************************************
 ;* "resta"
-;   *Rutina que resta r r1:r0 con r3:r2, y devuelve el valor absoluto de la resta 
+;   *Rutina que resta  r1:r0 con r3:r2, y devuelve el valor absoluto de la resta 
 ;   *Entrega  el valor absoluto en r1:r0
 ;  
 ;*  

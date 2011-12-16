@@ -39,6 +39,7 @@
     .equ    deltaPasoXlambdaLow=10
     .equ    posMinLambdaHigh=11
     .equ    posMinLambdaLow=12 
+    .equ    sentido_giro=13
     .equ    velmotor=0x15
 ;*****************************************************************
 ;*****************************************************************
@@ -193,9 +194,9 @@ savelambdal:
 
 ReadSensor:
         rcall   lectura
-		ldi	Xl,low(mediciones);vuelvo a hacer q apunte al comienzo
-	        ldi	Xh,high(mediciones)
-		rjmp	return_interrupt
+	ldi	Xl,low(mediciones);vuelvo a hacer q apunte al comienzo
+	ldi	Xh,high(mediciones)
+	rjmp	return_interrupt
 
 MotorUp:
 		rcall stepback
@@ -231,6 +232,9 @@ calibrar:
         breq primera_calibracion
         cpi tmp,1;significa q hice la primera calibracion,hago la segunda
         breq segunda_calibracion
+
+        cpi tmp,2
+        breq tercer_calibracion
         rjmp return_interrupt;sino, no tengo nada q calibrar
 
 primera_calibracion:
@@ -243,7 +247,7 @@ primera_calibracion:
          rcall EEPROM_write        
 
         rcall calibracion
-        ;aca pedir ayuda dl macro,x ahora lo hago a mano
+        
         
         MoveCalibraTo calibra1High        
         ldi Xh,high(pos_max)
@@ -289,13 +293,49 @@ segunda_calibracion:
         rcall EEPROM_write
 
         MoveCalibraTo estado
-        ldi arg,0
+        ldi arg,2
         rcall EEPROM_write
+        
+      
+
+
         rcall conversion		;una vez q tengo las dos calibraciones,
         						;busco la equivalencia entre pasos y longitudes
         						;de onda
         rjmp return_interrupt   
  
+
+tercer_calibracion:
+         MoveCalibraTo lambda1High
+         mov arg,lambdah
+         rcall EEPROM_write
+         
+         MoveCalibraTo lambda1Low
+         mov arg,lambdal
+         rcall EEPROM_write        
+
+        rcall calibracion
+        
+        
+        MoveCalibraTo calibra1High        
+        ldi Xh,high(pos_max)
+        ldi Xl,low(pos_max)
+        ld tmp,X+
+        mov arg,tmp
+        rcall EEPROM_write
+        MoveCalibraTo calibra1Low
+        ld tmp,X
+        mov arg,tmp
+        rcall EEPROM_write
+
+
+        MoveCalibraTo estado
+        ldi arg,1
+        rcall EEPROM_write
+        rcall conversion
+        rjmp return_interrupt
+
+
 
 prepeeprom:
         clr yh
