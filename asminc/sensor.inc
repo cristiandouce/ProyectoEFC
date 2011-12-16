@@ -277,7 +277,7 @@ divide_by_two:   lsr high_suma
                  ldi Xl,low(var)
                  ret
 
->>>>>>> be1db7d40bae709ff56374fa084f1d3e135625b5
+
 ;####################################################3
 SAMPLEinit:
         ldi dta,0x20
