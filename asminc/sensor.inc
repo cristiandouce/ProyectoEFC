@@ -253,7 +253,7 @@ mitad:           ld aux,X+
 				 dec tmp
 				 brne mitad
 				 clc
-				 ld low_suma,X
+				 ld low_suma,X+
 				 ldi tmp,31
 sumar:           ld aux,X+
 				 add low_suma,aux
@@ -269,10 +269,8 @@ divide_by_two:   lsr high_suma
                  ldi Xh,high(promedio)
                  st X,low_suma
                  ld rtn,X
-                 ldi Xh,high(var)
-                 ldi Xl,low(var)
-                 ret
-
+                 ret          
+                 
 ;####################################################3
 SAMPLEinit:
         ldi dta,0x20

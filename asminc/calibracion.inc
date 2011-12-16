@@ -29,18 +29,23 @@ cal:
             brcs actualizar_maximo
 
 cont:          
-            ldi tmp,10             
+            ldi arg,10             
 vuelta_diez: 
             adiw Yh:Yl,1;incremento la posicion del vector
           
             rcall stepforth;avanzo un paso con el motor
             rcall delayY
-            dec tmp
+            dec arg
             brne cont
 
-            sbiw r25:r24,10;disminuyo el contador
-            brne cal
-
+            ldi arg,10
+vuelta:
+            sbiw r25:r24,1;disminuyo el contador
+            breq salir
+            dec arg
+            brne vuelta
+            rjmp cal
+salir:
             ret
 
 actualizar_maximo:
@@ -65,7 +70,7 @@ lectura:
 
            MoveCalibraTo posMinLambdaLow
            rcall EEPROM_read 
-           mov r24,rtn;guardo en r1:r0 la cantidad de pasos que equivalen 
+           mov r24,rtn;
            mov r2,rtn
 voy_al_comienzo:
            rcall stepforth
@@ -302,14 +307,15 @@ setear:
        sec
        rjmp continuar
 ;/******************************************************************/   
-
+;probar mañana
 buscoposmin:
+          
            MoveCalibraTo calibra1High
            rcall EEPROM_read 
-           mov r6,rtn
+           mov r7,rtn
            MoveCalibraTo calibra1Low
            rcall EEPROM_read 
-           mov r7,rtn;guardo en r1:r0 el valor de calibra1
+           mov r6,rtn;guardo en r1:r0 el valor de calibra1
            
            MoveCalibraTo lambda1High;el primer valor d lambda  
            rcall EEPROM_read 
@@ -334,15 +340,18 @@ comparacion:
            ;al que resto 400(0x0190)
            rcall resta
            ;el resultado me quedo en r1:r0
+       mov r9,r1
+       mov r8,r0
+       sbiw r25:r24,1
 sigo:
            rcall sumar_a_si_mismo
            ;r25:r24 contiene el deltapasoporlambda
            sbiw r25:r24,1
 comparo_p_alta:
            cpi  r25,0
-           brne  sigo
-           
-comparo_p_baja:
+           breq  parte_alta_cero
+           rjmp sigo
+parte_alta_cero:
            cpi r24,0
            brne sigo           
 es_cero:  
@@ -360,13 +369,11 @@ es_cero:
           MoveCalibraTo posMinLambdaLow
           mov arg,r0
           rcall EEPROM_write 
-          ret            
+     ret
 
 
 
 sumar_a_si_mismo:
-         add r0,r0
-         adc r1,r1
+         add r0,r8
+         adc r1,r9
          ret 
-
-                               
