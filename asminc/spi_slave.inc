@@ -21,7 +21,7 @@
 ;*	CONSTANTES
 ;*****************************************************************
 	.equ	pCSS	=	1
-	.equ	pSS		=	2
+	.equ	pSS	=	2
 	.equ	pMOSI	=	3
 	.equ	pMISO	=	4
 	.equ	pSCK	=	5
@@ -39,7 +39,7 @@
     .equ    deltaPasoXlambdaLow=10
     .equ    posMinLambdaHigh=11
     .equ    posMinLambdaLow=12 
-    .equ    velmotor=0x15
+    .equ    velmotor=0x04
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con SPI
@@ -92,6 +92,12 @@ SPI_STC:
         in  tmp,SREG
         sbrc tmp,1 ;tests zero flag
         rjmp initmotor
+
+        cpi dta,'t'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp takepicture
+
 
         cpi dta,'f'
         in  tmp,SREG
@@ -183,7 +189,13 @@ savelambdah:
         dec tmp2
 	rjmp return_interrupt
 
-		
+takepicture:
+        rcall   sensor_reset
+        rcall   sensor
+        ldi     Xl,low(var);vuelvo a hacer q apunte al comienzo
+        ldi     Xh,high(var)
+        rjmp    return_interrupt
+
 
 savelambdal:
         mov lambdal,dta

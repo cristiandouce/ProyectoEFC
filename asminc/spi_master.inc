@@ -85,6 +85,10 @@ StartReading:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 's'
 		ret
+GetPixeles:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 't'
+		ret
 
 		
 SlavePrepMotorC:
@@ -156,18 +160,18 @@ tsloop88:
 SaveReading:
 		ldi 	contH,0x1
 		ldi 	ContL,0x91;de 400 a 800 inclusive
-		ldi		Zh,high(datos)
-		ldi		Zl,low(datos)
+		ldi		Yh,high(datos)
+		ldi		Yl,low(datos)
 start:	;st 		z+,yl
 		;ldi 	delay,102
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'd'
 		;* Cargo el dato en argumento para llevar al lcd
-		st 		z+,tmp
-		clr Yh
-		mov Yl,tmp
-		movw	rBin1H:rBin1L,Yh:Yl
+		st 		y+,tmp
+		clr 	wrdh
+		movw	wrdl,tmp
+		movw	rBin1H:rBin1L,wrdh:wrdl
 		ldi     Zh,high(buffer)
 		ldi 	Zl,low(buffer)
 		rcall	Bin2ToAsc5
@@ -187,6 +191,43 @@ tsloop:
 		sbiw	contH:contL,1
 		brne 	start
 		ret
+
+
+SavePixeles:
+		clr 	contH
+		ldi 	ContL,0x64
+		ldi		Yh,high(datos)
+		ldi		Yl,low(datos)
+startp:	;st 		z+,yl
+		;ldi 	delay,102
+		;* Mando instruccion de lectura
+		;* y levanto el dato
+		SendInstruction 'd'
+		;* Cargo el dato en argumento para llevar al lcd
+		st 		y+,tmp
+		clr 	wrdh
+		movw	wrdl,tmp
+		movw	rBin1H:rBin1L,wrdh:wrdl
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		ld	arg,Z+
+		ld	arg,Z+
+		ldi tmp,3
+		ld	arg,Z+
+tsloopp:	
+		rcall USART_Transmit
+		ld	arg,Z+
+		dec tmp
+		cpi tmp,0
+		brne tsloopp
+		ldi arg,','
+		rcall USART_Transmit
+		;* Decremento el contador
+		sbiw	contH:contL,1
+		brne 	startp
+		ret
+
 
 GetMotorCount:
 		;* Mando instruccion de lectura

@@ -45,8 +45,7 @@ MENU_init:
 		sbi		DDRC,lamp
 		cbi		PORTC,lamp
 		;cargo mi registro ZERO
-		ldi 	tmp,0
-		mov		zero,tmp
+		clr		zero
 		ret
 
 
