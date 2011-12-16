@@ -66,27 +66,28 @@ SPI_Sinit:
 SPI_STC:
 		sbi PortC,4
 		
-		in dta,SPDR;guardo el byte q me mando
+            ;* Guardo el byte recibido
+		in dta,SPDR
 		
-
-		;* Me fijo si voy a recibir Lambda
+    		;* Me fijo si voy a recibir Lambda
         cpi fla,0
         brne savelambda
 
-
-
-		cpi dta,'e';hago la calibracion
-		breq eepromReadTest
+            ;* Si recibo null, no hago nada!
+        cpi dta,0
+        breq return_interrupt
         
+            ;* Test de eeprom Read
+        cpi dta,'e'
+        breq eepromReadTest
 
         cpi dta,'f'
         breq partealta
 
-		
         ;* Me fijo que instrucción se envió...
 
-		cpi dta,'s';me fijo si fue la orden 's'
-		breq ReadSensor;y voy a hacer la rutina dl sensor
+		cpi dta,'s'           ;me fijo si fue la orden 's'
+		breq ReadSensor       ;y voy a hacer la rutina dl sensor
 
 		cpi dta,'d'
 		breq SendSensorData	
@@ -106,7 +107,8 @@ SPI_STC:
 		cpi dta,'m'
 		breq return_interrupt
 
-		cpi dta,'a';hago la calibracion
+            ;* Hago la calibracion
+		cpi dta,'a'
 		breq preparacalibrar
 
 return_interrupt:
@@ -114,9 +116,9 @@ return_interrupt:
 		reti
 
 eepromReadTest:
-        mov tmp,lambdal
-		out SPDR,tmp
-		rjmp	return_interrupt
+        mov     tmp,lambdal
+        out     SPDR,tmp
+        rjmp    return_interrupt
 
 partealta:
         mov tmp,lambdah
@@ -145,12 +147,9 @@ savelambdal:
 		rjmp calibrar
 
 ReadSensor:
-		ldi tmp,'w'
-		out	SPDR,tmp
-        rcall sensor_reset;
-		rcall sensor
-		ldi	Xl,low(var);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(var)
+        rcall   lectura
+		ldi	Xl,low(mediciones);vuelvo a hacer q apunte al comienzo
+	    ldi	Xh,high(mediciones)
 		rjmp	return_interrupt
 
 MotorUp:
@@ -190,7 +189,6 @@ calibrar:
         rjmp return_interrupt;sino, no tengo nada q calibrar
 
 primera_calibracion:
-         
          MoveCalibraTo lambda1High
          mov arg,lambdah
          rcall EEPROM_write

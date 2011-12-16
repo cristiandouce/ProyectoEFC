@@ -75,7 +75,7 @@ delay1s:
 
 
 delayY:
-			ldi tmp,0x02
+			ldi tmp,0x15
 			mov r9,tmp
 delayY_outer:
 			clr	r5

@@ -172,6 +172,7 @@ sensor_reset: ldi dta,0x36			;codigo dl reset
 ;*	"sensor"
 ;*	Rutina ejecuta integracion y lectura del sensor.
 ;*	Guarda en la variable var los 102 pixeles leidos.
+;*  Tambien llama a procesar_lectura
 ;*****************************************************************
 sensor:
 

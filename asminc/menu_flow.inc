@@ -77,11 +77,6 @@ jumper:
 		LoadWord
 		ijmp
 
-setandshow:;revisar
-		movw	Yh:Yl,Xh:Xl
-		rjmp 	ShowScreen
-	
-
 PressUp:
 		movw	Zh:Zl,Xh:Xl
 		rjmp	jumper
@@ -93,7 +88,6 @@ PressRet:
 		movw	Zh:Zl,Xh:Xl
 		MoveZTo	(fwd)
 		rjmp	jumper
-
 
 switchLamp:
 		sbis 	PORTC,0
@@ -127,10 +121,14 @@ lLamp:
 		ldi		Xl,low(Lampara<<1)
 		rjmp	ShowScreen
 
+lVerCal:
+		ldi		Xh,high(VerCal<<1)
+		ldi		Xl,low(VerCal<<1)
+		rjmp	ShowScreen
+
 check_keys:
 		;reseteo las flags de las keys
 		rcall delay200ms
-		cbr		fla,maskRESET
 		;leo el puerto C
 		in		tmp,PINC
 		;si está presionado un boton va a quedar en 0 ese bit
@@ -142,7 +140,6 @@ check_keys:
 		rjmp	pressRET
 		;si no se presiono nada me vuelvo a fijar
 		;luego de esperar por posibles rebotes
-		
 		rjmp	check_keys
 		
 toLambda:
@@ -196,7 +193,6 @@ comunicateA:
 		ldi tmp,5
 		ld	arg,Z+
 tsloop10:	
-		rcall USART_Transmit
 		rcall LCD_Putc
 		ld	arg,Z+
 		dec tmp
@@ -287,14 +283,11 @@ ComunicateL:
 		rcall 	SlaveSensorInit
 		rcall 	PutSensorData
 		;rcall   filldatos
-		;rcall	SlavePrepMotorC
-		;rcall 	getmotorcount
 		clr 	yh
 		clr 	yl
 		ldi		Xh,high(Resultados<<1)
 		ldi		Xl,low(Resultados<<1)
 		rjmp 	ShowScreen
-		ret
 
 filldatos:
 		ldi 	yh,0x1
@@ -305,7 +298,12 @@ floop:	st 		z+,yl
 		sbiw	Yh:Yl,1
 		brne 	floop
 		ret
+ComunicateR:
+		SetLCDClearAtHome
+		rcall 	getCalibracionData
 
+
+		rjmp ShowScreen
 		
 ComunicateQ:
 		SetLcdClearAtHome 		
@@ -378,7 +376,6 @@ tsloop7:
  		
 
 dispintensidad:
-		;secondline
 		ldi 	zh,high(sInt<<1)
 		ldi 	zl,low(sInt<<1)
 		rcall 	LCD_PutString

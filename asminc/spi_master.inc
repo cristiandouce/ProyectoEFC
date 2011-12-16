@@ -90,21 +90,16 @@ SlaveSensorInit:
 SlavePrepMotorC:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'p'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
+
 SendLambda:
 		;*	Mando al slave para que inicie la se prepare a leer lambda
-		
 		SendInstruction 'a'
-	
 		SendData r1;paso la parte alta de lambda 
 		SendData r0; paso la parte baja de lambda
-		
 		ret
 
 PutEepromData:
-		
 		SetLcdClearAtHome
 		;* cargo un contador para el unico dato
 		ldi 	delay,1
@@ -137,21 +132,18 @@ tsloop88:
 		ldi arg,','
 		rcall USART_Transmit
 		;* Decremento el contador
-
 		ret
 
 PutSensorData:
 		ldi 	dtah,0x1
-		ldi 	dta,0x91
+		ldi 	dta,0x91;de 400 a 800 inclusive
 		ldi		Zh,high(datos)
 		ldi		Zl,low(datos)
 start:	;st 		z+,yl
-		;* cargo un contador para los 5 datos
 		;ldi 	delay,102
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'd'
-		
 		;* Cargo el dato en argumento para llevar al lcd
 		st 		z+,tmp
 		clr Yh
@@ -181,7 +173,6 @@ GetMotorCount:
 		;* Mando instruccion de lectura
 		;* y levanto el dato
 		SendInstruction 'p'
-		mov dta,tmp
 		SendInstruction 'c'
 		mov dta,tmp
 		SendInstruction 'c'
@@ -191,8 +182,6 @@ GetMotorCount:
 SlaveMotorInit:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'm'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		ret
 
 
@@ -200,12 +189,8 @@ SlaveMotorInit:
 mot_down:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'j'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		rjmp 	ShowScreen
 mot_up:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 'u'
-
-		;*	Espero 1 segundo hasta que termine la lectura
 		rjmp 	ShowScreen

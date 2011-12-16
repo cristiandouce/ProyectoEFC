@@ -22,20 +22,7 @@
 ;*	CONSTANTES
 ;*****************************************************************
 ;-Estados
-	.equ	op1			=	0x00		;opcion1: lectura en menu principal; 'Si' en exportar y calibracion 2
-	.equ	op2			=	0x01		;opcion2: calibracion en menu principal: 'No' en exportar y calibracion 2	
-	.equ	op3			=	0x02		;opcion3: Lampara on en menu principal: 'Volver' en calibracion 2
-	.equ	op4			=	0x03		;opcion4	calibracion1
-	.equ	maskOP		=	0b00000011	;para leer flags
-	.equ	maskRESET	=	0b00011100
-	.equ	flagUP		=	2
-	.equ	flagDW		=	3
-	.equ	flagFW		=	4
-	.equ	flagLmp		=	5
-	.equ	maskUP		=	0b00000100
-	.equ	maskDW		=	0b00001000
-	.equ	maskRT		=	0b00010000
-	.equ	maskLmp		=	0b00100000
+	
 ;-Pines puerto C
 	.equ	lamp		= 	0
 	.equ	switchUP	= 	2
@@ -43,8 +30,6 @@
 	.equ	switchRT	= 	4
 ;-Cadenas de caracteres
 	.equ	fst			=	0 			;fin de string en NULL character
-
-
 	.equ	prev		=	0
 	.equ	next		=	2
 	.equ	fwd			=	4
@@ -77,10 +62,12 @@
 		sProbando: 	.db 	"Probando motor",fst
 		ProbarM:	.db		high(lCalibra),low(lCalibra),high(lProbar),low(lProbar),high(comunicateM),low(comunicateM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbarM<<1),low(sProbarM<<1),high(sProbar<<1),low(sProbar<<1)
 		sProbarM: 	.db 	"Probar motor",fst
-		Probar: 	.db		high(lProbarM),low(lProbarM),high(lLamp),low(lLamp),high(ComunicateQ),low(ComunicateQ),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sProbar<<1),low(sProbar<<1),0,0
+		Probar: 	.db		high(lProbarM),low(lProbarM),high(lVerCal),low(lVerCal),high(ComunicateQ),low(ComunicateQ),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbar<<1),low(sProbar<<1),high(sVerCal<<1),low(sVerCal<<1)
 		sProbar: 	.db 	"Num.Pasos Motor",fst
+		VerCal: 	.db		high(lProbar),low(lProbar),high(lLamp),low(lLamp),high(ComunicateR),low(ComunicateR),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sVerCal<<1),low(sVerCal<<1),0,0
+		sVerCal: 	.db 	"Ver calibracion",fst
 		sCalibra: 	.db 	"Calibracion",fst
-		Lampara:	.db		high(lProbar),low(lProbar),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sProbar<<1),low(sProbar<<1),0,0
+		Lampara:	.db		high(lVerCal),low(lVerCal),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sVerCal<<1),low(sVerCal<<1),0,0
 		sLampOn:	.db		"Lamp.*On*- Off ",fst
 		sLampOff:	.db		"Lamp. On -*Off*",fst
 		Lambda:		.db		high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(Lambda_Ret),low(Lambda_Ret),high(flstd),low(flstd),high(slLambda),low(slLambda),high(sLambda<<1),low(sLambda<<1),0,0

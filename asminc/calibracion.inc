@@ -35,12 +35,14 @@ vuelta_diez:
           
             rcall stepforth;avanzo un paso con el motor
             rcall delayY
+            sbiw r25:r24,1;disminuyo el contador
+            breq  afterjump 
             dec delay
             brne vuelta_diez
-
-            sbiw r25:r24,10;disminuyo el contador
-            brmi cal
-
+            rjmp cal
+afterjump:
+            rcall delay1s
+            rcall contarpasos
             ret
 
 actualizar_maximo:
@@ -65,25 +67,24 @@ lectura:
 
            MoveCalibraTo posMinLambdaLow
            rcall EEPROM_read 
-           mov r24,rtn;guardo en r1:r0 la cantidad de pasos que equivalen 
+           mov r24,rtn;guardo la cantidad de pasos que equivalen 
            mov r2,rtn
 voy_al_comienzo:
            rcall stepforth
            rcall delayY
            sbiw r25:r24,1
            brne voy_al_comienzo
-
-                                
-	   	     ldi Xl,low(cant_pasos)
-           ldi Xh,high(cant_pasos)
+                     
+	   	     ;ldi Xl,low(cant_pasos)
+           ;ldi Xh,high(cant_pasos)
            ;guardo en y la cantidad de pasos
-           ld Yl,X+
-           ld Yh,X
-           mov r1,Yh
-           mov r0,Yl
-           rcall resta
-           mov Yh,r1
-           mov Yl,r0
+           ;ld Yl,X+
+           ;ld Yh,X
+           ;mov r1,Yh
+           ;mov r0,Yl
+           ;rcall resta
+           ;mov Yh,r1
+          ; mov Yl,r0
 
            MoveCalibraTo deltaPasoXlambdaHigh;  
            rcall EEPROM_read 
@@ -91,8 +92,8 @@ voy_al_comienzo:
            MoveCalibraTo deltaPasoXlambdaLow
            rcall EEPROM_read 
            mov r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
-
-
+           ldi Yh,0x01  ;!!
+           ldi Yl,0x91  ;!!
            ldi Xl,low(mediciones)
            ldi Xh,high(mediciones)
 sigo_midiendo: 
@@ -101,15 +102,16 @@ sigo_midiendo:
             rcall sensor_reset
             rcall sensor
             st X+,rtn
+            sbiw Yh:Yl,1  ;!!
+            breq f  ;!!
 x_pasos:
             rcall stepforth
             rcall delayY
-            sbiw Yh:Yl,1
-            breq f
+            ;sbiw Yh:Yl,1
+            ;breq f
             sbiw r25:r24,1
             brne x_pasos
        	    rjmp sigo_midiendo 
-
 f:      	  rcall contarpasos
             ret
 
