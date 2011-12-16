@@ -36,6 +36,7 @@
 	segPosMot:  	.dw 0x0000
 	deltaPaLa:  	.dw 0x0000
 	lambdaMinPos:	.dw 0x0000
+	sentidoGiro:    .db 0x00
 
 	.dseg
 		.org 0x200
@@ -46,7 +47,7 @@ delta_lambda:  .byte 2
 var:	.byte	120
 cant_pasos:	.byte   2
 promedio: 		.byte 	1
-mediciones:     .byte 400
+mediciones:     .byte 401
 fake:        .byte 2
 	.cseg
 		.org 0x0000

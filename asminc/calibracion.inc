@@ -78,7 +78,7 @@ lectura:
            mov r2,rtn
 voy_al_comienzo:
            rcall stepforth
-           ldi tmp2,0x08
+           ldi tmp2,velmotor
            rcall delaycus
            sbiw contH:contL,1
            brne voy_al_comienzo
@@ -206,7 +206,7 @@ conversion:
  ;***************************************************************************************************************************************  
  ;*****************************************************************
 ;* "resta"
-;   *Rutina que resta r r1:r0 con r3:r2, y devuelve el valor absoluto de la resta 
+;   *Rutina que resta  r1:r0 con r3:r2, y devuelve el valor absoluto de la resta 
 ;   *Entrega  el valor absoluto en r1:r0
 ;  
 ;*  
