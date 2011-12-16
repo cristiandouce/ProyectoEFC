@@ -39,9 +39,9 @@
 	.def	arg			=	r17		;* Argumentos para pasar a funciones
 	.def	rtn			=	r18		;valor de retorno de subrutinas
 	.def    delay		=	r19		;valor de bayte recivido por SPI
-	.def	fla			=	r20		
+	.def	tmp2			=	r20		
 	.def    aux     	=	r21
 	.def	dta			=	r22		
 	.def 	dtah		=	r23	
-	.def	key			=	r24
-	.def 	con			=	r25		; hay que reemplazar por r[0-15]
+	.def	contL		=	r24
+	.def 	contH		=	r25		

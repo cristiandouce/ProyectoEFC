@@ -248,17 +248,17 @@ STARTint:
 procesar_lectura:
 				 ldi 	Xh,high(var)
 				 ldi 	Xl,low(var)
-	             clr r4
+	             clr high_suma
 	             ldi tmp,34
 mitad:           ld aux,X+
 				 dec tmp
 				 brne mitad
 				 clc
-				 ld low_suma,X
+				 ld low_suma,X+
 				 ldi tmp,31
 sumar:           ld aux,X+
 				 add low_suma,aux
-	             adc high_suma,r4
+	             adc high_suma,zero
 	             dec tmp
 	             brne sumar       
 	             ldi tmp, 5
@@ -269,7 +269,7 @@ divide_by_two:   lsr high_suma
                  ldi Xl,low(promedio)
                  ldi Xh,high(promedio)
                  st X,low_suma
-                 ld rtn,X
+                 mov rtn,low_suma
                  ldi Xh,high(var)
                  ldi Xl,low(var)
                  ret

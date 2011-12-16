@@ -97,13 +97,34 @@
 		rcall	LCD_wait
 	.ENDMACRO
 
+	.MACRO	putstring
+		ldi 	zh,high(@0<<1)
+		ldi 	zl,low(@0<<1)
+		rcall 	LCD_PutString
+	.ENDMACRO
+
+	.MACRO PrintAscii
+		movw	rBin1H:rBin1L,@0:@1
+		ldi     Zh,high(buffer)
+		ldi 	Zl,low(buffer)
+		rcall	Bin2ToAsc5
+		ldi tmp,5
+		ld	arg,Z+
+awloop@2:	
+		rcall USART_Transmit
+		rcall LCD_Putc
+		ld	arg,Z+
+		dec tmp
+		brne awloop@2
+	.ENDMACRO
+
 ;el siguiente macro tiene que ser de 1 sola linea
 	.MACRO	MoveZTo 
 		adiw	ZH:ZL,@0
 	.ENDMACRO
 	
 	.MACRO MoveCalibraTo
-        clr r25             ;por el org 000 esperemos que funque asi
-        clr r24            
-		adiw 	r25:r24,@0
+        clr contH             ;por el org 000 esperemos que funque asi
+        clr contL            
+		adiw 	contH:contL,@0
 	.ENDMACRO

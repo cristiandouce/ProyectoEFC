@@ -218,8 +218,8 @@ tsloop10:
 
 comunicateC:		
 		SetLcdClearAtHome
-		rcall SlaveSensorInit
-		rcall PutSensorData
+		rcall StartReading
+		rcall SaveReading
 		ldi		Zh,high(sEnviandoPC<<1)
 		ldi		Zl,low(sEnviandoPC<<1)
 		rcall	LCD_Putstring 
@@ -268,7 +268,6 @@ slLambda:
 		ret
 
 comunicateM:
-		rcall 	SlaveMotorInit
 		ldi		Xh,high(MotorM<<1)
 		ldi		Xl,low(MotorM<<1)
 		rjmp 	ShowScreen
@@ -280,8 +279,8 @@ ComunicateL:
 		ldi 	zh,high(sBusy<<1)
 		ldi 	zl,low(sBusy<<1)
 		rcall 	LCD_PutString
-		rcall 	SlaveSensorInit
-		rcall 	PutSensorData
+		rcall 	StartReading
+		rcall 	SaveReading
 		;rcall   filldatos
 		clr 	yh
 		clr 	yl
@@ -300,13 +299,51 @@ floop:	st 		z+,yl
 		ret
 ComunicateR:
 		SetLCDClearAtHome
-		rcall 	getCalibracionData
-
-
+		rcall 	geteprom
+		putstring sEstado
+		ldi 	Yh,high(datoscalibracion)
+		ldi 	Yl,low(datoscalibracion)
+		SECONDLINE
+		clr 	dtah
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,0
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,1
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,2
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,3
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,4
+		rcall 	delay1s
+		rcall 	delay1s
+		SetLCDClearAtHome
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,5
+		SECONDLINE
+		ld 		dtah,Y+
+		ld 		dta,Y+
+		PrintAscii  dtah,dta,6
+		rcall 	delay1s
+		rcall 	delay1s
 		rjmp ShowScreen
 		
 ComunicateQ:
 		SetLcdClearAtHome 		
+		rcall 	calibraciontrucha;!!!ojo!!
 		rcall 	getmotorcount
 		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)

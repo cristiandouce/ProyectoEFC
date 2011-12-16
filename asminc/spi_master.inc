@@ -81,7 +81,7 @@ SPI_WAIT_FOR_SLAVE:
 
 ;* esto hay que meterlo en otro inc, asi como todo el
 ;* codigo opciones del menu y manejarlo con includes
-SlaveSensorInit:
+StartReading:
 		;*	Mando al slave para que inicie la lectura del sensor
 		SendInstruction 's'
 		ret
@@ -97,6 +97,22 @@ SendLambda:
 		SendInstruction 'a'
 		SendData r1;paso la parte alta de lambda 
 		SendData r0; paso la parte baja de lambda
+		ret
+
+calibraciontrucha:
+		;*	Mando al slave para que inicie la lectura del sensor
+		SendInstruction 'b'
+		ret
+
+geteprom:
+		sendinstruction 'o'
+		ldi 	delay,13
+		ldi 	Zh,high(datoscalibracion)
+		ldi 	Zl,low(datoscalibracion)
+loopepr:sendinstruction 'l'
+		st z+,tmp
+		dec delay
+		brne	loopepr
 		ret
 
 PutEepromData:
@@ -134,9 +150,9 @@ tsloop88:
 		;* Decremento el contador
 		ret
 
-PutSensorData:
-		ldi 	dtah,0x1
-		ldi 	dta,0x91;de 400 a 800 inclusive
+SaveReading:
+		ldi 	contH,0x1
+		ldi 	ContL,0x91;de 400 a 800 inclusive
 		ldi		Zh,high(datos)
 		ldi		Zl,low(datos)
 start:	;st 		z+,yl
@@ -165,7 +181,7 @@ tsloop:
 		ldi arg,','
 		rcall USART_Transmit
 		;* Decremento el contador
-		sbiw	r25:r24,1
+		sbiw	contH:contL,1
 		brne 	start
 		ret
 
@@ -181,6 +197,8 @@ GetMotorCount:
 
 SlaveMotorInit:
 		;*	Mando al slave para que inicie la lectura del sensor
+		SetLCDClearAtHome
+		putstring sInimot
 		SendInstruction 'm'
 		ret
 

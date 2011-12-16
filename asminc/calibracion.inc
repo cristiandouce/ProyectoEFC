@@ -8,15 +8,15 @@
 ;*	"calibracion"
 ;*	Rutina que guarda la posicion del motor para la cual la intensidad es maxima
 ;*	Devuelve en la variable pos_max la posicion del motor para la cual la intensidad es maxima
-;   Utiliza los registros r24,r25,rtn,max,X,Y
+;   Utiliza los registros contL,contH,rtn,max,X,Y
 
 ;*****************************************************************
 calibracion:
             ldi Xl,low(cant_pasos)
             ldi Xh,high(cant_pasos)
             ;cantidad de pasos esta al reves,primero el low despues el high
-            ld r24,X+;contador decremental
-            ld r25,X
+            ld contL,X+;contador decremental
+            ld contH,X
             clr Yh;contador incremental, da la posicion dl motor
             clr Yl;
             clr max
@@ -24,23 +24,24 @@ calibracion:
 cal:        
             rcall sensor_reset
             rcall sensor;me devuelve el valor procesado en rtn
-                   
             cp max,rtn
             brcs actualizar_maximo
-
+            clr tmp2
 cont:          
             ldi delay,10             
 vuelta_diez: 
             adiw Yh:Yl,1;incremento la posicion del vector
           
             rcall stepforth;avanzo un paso con el motor
-            rcall delayY
-            sbiw r25:r24,1;disminuyo el contador
+            rcall delaycus
+            ldi   tmp2,velmotor
+            sbiw contH:contL,1;disminuyo el contador
             breq  afterjump 
             dec delay
             brne vuelta_diez
             rjmp cal
 afterjump:
+            clr tmp2
             rcall delay1s
             rcall contarpasos
             ret
@@ -62,17 +63,18 @@ actualizar_maximo:
 lectura:
            MoveCalibraTo posMinLambdaHigh  
            rcall EEPROM_read 
-           mov r25,rtn
+           mov contH,rtn
            mov r3,rtn
 
            MoveCalibraTo posMinLambdaLow
            rcall EEPROM_read 
-           mov r24,rtn;guardo la cantidad de pasos que equivalen 
+           mov contL,rtn;guardo la cantidad de pasos que equivalen 
            mov r2,rtn
 voy_al_comienzo:
            rcall stepforth
-           rcall delayY
-           sbiw r25:r24,1
+           ldi tmp2,0x08
+           rcall delaycus
+           sbiw contH:contL,1
            brne voy_al_comienzo
                      
 	   	     ;ldi Xl,low(cant_pasos)
@@ -97,22 +99,25 @@ voy_al_comienzo:
            ldi Xl,low(mediciones)
            ldi Xh,high(mediciones)
 sigo_midiendo: 
-            mov r25,r1
-            mov r24,r0
+            mov contH,r1
+            mov contL,r0
             rcall sensor_reset
             rcall sensor
             st X+,rtn
             sbiw Yh:Yl,1  ;!!
             breq f  ;!!
+            ldi   tmp2,0x06
 x_pasos:
             rcall stepforth
-            rcall delayY
+            rcall delaycus
+            ldi   tmp2,velmotor
             ;sbiw Yh:Yl,1
             ;breq f
-            sbiw r25:r24,1
+            sbiw contH:contL,1
             brne x_pasos
        	    rjmp sigo_midiendo 
 f:      	  rcall contarpasos
+            clr tmp2
             ret
 
  ;*****************************************************************
@@ -320,10 +325,10 @@ buscoposmin:
            
            MoveCalibraTo deltaPasoXlambdaHigh
            rcall EEPROM_read
-           mov r25,rtn
+           mov contH,rtn
            MoveCalibraTo deltaPasoXlambdaLow
            rcall EEPROM_read
-           mov r24,rtn 
+           mov contL,rtn 
            
 comparacion:
            ldi tmp,0x01
@@ -336,14 +341,14 @@ comparacion:
            ;el resultado me quedo en r1:r0
 sigo:
            rcall sumar_a_si_mismo
-           ;r25:r24 contiene el deltapasoporlambda
-           sbiw r25:r24,1
+           ;contH:contL contiene el deltapasoporlambda
+           sbiw contH:contL,1
 comparo_p_alta:
-           cpi  r25,0
+           cpi  contH,0
            brne  sigo
            
 comparo_p_baja:
-           cpi r24,0
+           cpi contL,0
            brne sigo           
 es_cero:  
           ; en r7:r6 tengo el valor de calibra1

@@ -27,18 +27,19 @@
 	.equ	pSCK	=	5
 	.equ	cnf_slv =	0b11100000
     .equ    estado  =  0
-    .equ    calibra1High = 3
-    .equ    calibra1Low = 4
-    .equ    calibra2High =7
-    .equ    calibra2Low = 8
     .equ    lambda1High = 1
     .equ    lambda1Low = 2
+    .equ    calibra1High = 3
+    .equ    calibra1Low = 4
     .equ    lambda2High = 5
     .equ    lambda2Low = 6
+    .equ    calibra2High =7
+    .equ    calibra2Low = 8
     .equ    deltaPasoXlambdaHigh=9
     .equ    deltaPasoXlambdaLow=10
     .equ    posMinLambdaHigh=11
     .equ    posMinLambdaLow=12 
+    .equ    velmotor=0x15
 ;*****************************************************************
 ;*****************************************************************
 ;*				Rutinas para trabajar con SPI
@@ -70,46 +71,85 @@ SPI_STC:
 		in dta,SPDR
 		
     		;* Me fijo si voy a recibir Lambda
-        cpi fla,0
-        brne savelambda
+        cpi tmp2,0
+        in  tmp,SREG
+        sbrs tmp,1 ;tests zero flag
+        rjmp savelambda
 
             ;* Si recibo null, no hago nada!
         cpi dta,0
-        breq return_interrupt
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp return_interrupt
         
             ;* Test de eeprom Read
         cpi dta,'e'
-        breq eepromReadTest
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp eepromReadTest
+
+        cpi dta,'m'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp initmotor
 
         cpi dta,'f'
-        breq partealta
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp partealta
 
         ;* Me fijo que instrucción se envió...
 
-		cpi dta,'s'           ;me fijo si fue la orden 's'
-		breq ReadSensor       ;y voy a hacer la rutina dl sensor
+	cpi dta,'s'           ;me fijo si fue la orden 's'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp ReadSensor       ;y voy a hacer la rutina dl sensor
 
-		cpi dta,'d'
-		breq SendSensorData	
-			
-		cpi dta,'p'
-		breq PrepMotorCount
+	cpi dta,'d'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp SendSensorData 
+        	
+	cpi dta,'p'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp PrepMotorCount
 
-		cpi dta,'c'
-		breq SendMotorCount
+	cpi dta,'c'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp SendMotorCount
 
-		cpi dta,'u'
-		breq MotorUp
+	cpi dta,'u'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp MotorUp
 
-		cpi dta,'j'
-		breq MotorDown
-
-		cpi dta,'m'
-		breq return_interrupt
+	cpi dta,'j'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp MotorDown
 
             ;* Hago la calibracion
-		cpi dta,'a'
-		breq preparacalibrar
+	cpi dta,'a'
+	in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp preparacalibrar
+
+        cpi dta,'b'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp calibracion_fake 
+
+        cpi dta,'o'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp prepeeprom 
+
+        cpi dta,'l'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp sendeeprom 
 
 return_interrupt:
 		cbi PortC,4
@@ -126,30 +166,30 @@ partealta:
 		rjmp	return_interrupt
 	
 savelambda:
-		cpi fla,1
+		cpi tmp2,1
 		breq savelambdal
-		cpi fla,3
+		cpi tmp2,3
 		breq savelambdah
-        dec fla
+        dec tmp2
 		rjmp return_interrupt
 
 savelambdah:
         mov lambdah,dta
-        dec fla
+        dec tmp2
 	rjmp return_interrupt
 
 		
 
 savelambdal:
         mov lambdal,dta
-        dec fla
+        dec tmp2
 		;rjmp return_interrupt
 		rjmp calibrar
 
 ReadSensor:
         rcall   lectura
 		ldi	Xl,low(mediciones);vuelvo a hacer q apunte al comienzo
-	    ldi	Xh,high(mediciones)
+	        ldi	Xh,high(mediciones)
 		rjmp	return_interrupt
 
 MotorUp:
@@ -175,7 +215,7 @@ SendMotorCount:
 		out SPDR,tmp
 		rjmp	return_interrupt	
 preparacalibrar:
-		ldi 	fla,4
+		ldi 	tmp2,4
 		rjmp return_interrupt;sino, no tengo nada q calibrar
 
 calibrar:
@@ -249,4 +289,76 @@ segunda_calibracion:
         rcall conversion		;una vez q tengo las dos calibraciones,
         						;busco la equivalencia entre pasos y longitudes
         						;de onda
-        rjmp return_interrupt          
+        rjmp return_interrupt   
+ 
+
+prepeeprom:
+        clr yh
+        clr yl
+        rjmp return_interrupt
+
+sendeeprom:
+        rcall eeprom_read
+        inc Yl
+        out SPDR,rtn
+        rjmp return_interrupt
+
+calibracion_fake:
+        
+        MoveCalibraTo deltaPasoXlambdaHigh
+        ldi arg,0x00
+        rcall EEPROM_write
+         
+        MoveCalibraTo deltaPasoXlambdaLow
+        ldi arg,0x03
+        rcall EEPROM_write
+
+        MoveCalibraTo posMinLambdaHigh
+        ldi arg,0x01
+        rcall EEPROM_write
+         
+        MoveCalibraTo posMinLambdaLow
+        ldi arg,0x00
+        rcall EEPROM_write 
+
+        MoveCalibraTo calibra1High
+        ldi arg,0x02
+        rcall EEPROM_write
+         
+        MoveCalibraTo calibra1Low
+        ldi arg,0x8A
+        rcall EEPROM_write
+
+        MoveCalibraTo calibra2High
+        ldi arg,0x01
+        rcall EEPROM_write
+         
+        MoveCalibraTo calibra2Low
+        ldi arg,0x2C
+        rcall EEPROM_write 
+
+        MoveCalibraTo lambda1High
+        ldi arg,0x02
+        rcall EEPROM_write
+         
+        MoveCalibraTo lambda1Low
+        ldi arg,0xBC
+        rcall EEPROM_write
+
+        MoveCalibraTo lambda2High
+        ldi arg,0x01
+        rcall EEPROM_write
+         
+        MoveCalibraTo lambda2Low
+        ldi arg,0xF4
+        rcall EEPROM_write 
+        rjmp return_interrupt
+
+initmotor:
+        ;* Posicion inicial motor
+        ldi tmp,low(posicion1<<1)
+        mov wrdl,tmp
+        ldi tmp,high(posicion1<<1)
+        mov wrdh,tmp
+        rcall contarpasos
+        rjmp return_interrupt

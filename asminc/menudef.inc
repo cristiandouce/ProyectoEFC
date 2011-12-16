@@ -51,7 +51,7 @@
 ;*****************************************************************
    
 .cseg
-	.org 0x0400    									
+	.org 0x0460    									
 
 		;direccion:			prev(2)//next(2)//return(2)//firstlinehandler//secondlinehandler//fstline//scdline
 		Lectura:	.db		high(check_keys),low(check_keys),high(lCalibra),low(lCalibra),high(ComunicateL),low(ComunicateL),high(flstd),low(flstd),high(slstd),low(slstd),high(sLectura<<1),low(sLectura<<1),high(sCalibra<<1),low(sCalibra<<1)
@@ -80,4 +80,5 @@
 		sLo: 		.db 	"L.O.:",fst
 		sInt: 		.db		"Int.:",fst
 		sEnviandoPC:.db		"Enviando a la PC",fst
- 
+ 		sEstado:	.db		"Estado:",fst
+ 		sInimot: 	.db 	"Iniciando motor",fst

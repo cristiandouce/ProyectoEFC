@@ -31,7 +31,8 @@
 
 contarpasos: 	clr   	Yl
 				clr		Yh
-iniciarmotor1:	rcall 	delayY
+iniciarmotor1:	ldi 	tmp2,velmotor
+				rcall 	delaycus
 				rcall 	stepforth
 				in 		tmp, PINB
 				ldi 	aux, 0b00000010
@@ -43,7 +44,8 @@ testpasos:
 				; Empiezo inicializacion y
 				; cuento los pasos en el camino
 iniciarmotor2:	rcall 	stepback
-				rcall 	delayY
+				ldi 	tmp2,velmotor
+				rcall 	delaycus
 				in 		tmp, PINC
 				ldi 	aux, 0b00100000
 				and 	tmp, aux
@@ -57,6 +59,7 @@ terminarmotor:	ldi 	xh, high(cant_pasos)
 				ldi 	xl, low(cant_pasos)
 				st 		X+, Yl
 				st 		X+, Yh
+				clr tmp2
 				ret
 
 
