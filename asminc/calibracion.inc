@@ -102,14 +102,14 @@ voy_al_comienzo:
            mov r0,rtn;guardo en r1:r0 la cantidad de pasos que equivalen a 1nm
            ldi Yh,0x01  ;!!
            ldi Yl,0x91  ;!!
-           ldi Xl,low(mediciones)
-           ldi Xh,high(mediciones)
+           ldi Zl,low(mediciones)
+           ldi Zh,high(mediciones)
 sigo_midiendo: 
             mov contH,r1
             mov contL,r0
             rcall sensor_reset
             rcall sensor
-            st X+,rtn
+            st Z+,rtn
             sbiw Yh:Yl,1  ;!!
             breq f  ;!!
             ldi   tmp2,0x06

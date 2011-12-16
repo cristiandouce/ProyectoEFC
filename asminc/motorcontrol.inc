@@ -70,6 +70,9 @@ terminarmotor:	ldi 	xh, high(cant_pasos)
 ;*****************************************************************
 
 stepforth:
+		push    Zl
+		push    Zh
+
 		in 		tmp, PINB
 		ldi 	aux, 0b00000010
 		and 	tmp, aux
@@ -83,7 +86,11 @@ stepforth:
 		adiw	ZH:ZL, 2
 		lpm		wrdh, Z+
 		lpm		wrdl, Z+
-stopf:	ret
+stopf:	
+        pop Zh
+        pop Zl
+
+        ret
 
 ;*****************************************************************
 ;*	"stepback"

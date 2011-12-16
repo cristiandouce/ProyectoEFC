@@ -267,15 +267,9 @@ divide_by_two:   lsr high_suma
 	             ror low_suma
                  dec tmp
                  brne divide_by_two
-                 ldi Xl,low(promedio)
-                 ldi Xh,high(promedio)
-                 st X,low_suma
 
                  mov rtn,low_suma
           
-                                  
-                 ldi Xh,high(var)
-                 ldi Xl,low(var)
                  ret
 
 
