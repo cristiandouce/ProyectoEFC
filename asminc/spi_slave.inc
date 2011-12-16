@@ -139,7 +139,7 @@ SPI_STC:
         cpi dta,'b'
         in  tmp,SREG
         sbrc tmp,1 ;tests zero flag
-        rjmp calibracion_fake 
+        rjmp fakeeeprom 
 
         cpi dta,'o'
         in  tmp,SREG
@@ -150,6 +150,11 @@ SPI_STC:
         in  tmp,SREG
         sbrc tmp,1 ;tests zero flag
         rjmp sendeeprom 
+
+        cpi dta,'r'
+        in  tmp,SREG
+        sbrc tmp,1 ;tests zero flag
+        rjmp reseteeprom 
 
 return_interrupt:
 		cbi PortC,4
@@ -303,7 +308,19 @@ sendeeprom:
         out SPDR,rtn
         rjmp return_interrupt
 
-calibracion_fake:
+reseteeprom:
+        MoveCalibraTo estado
+        ldi tmp,13
+loopReset:
+        ldi arg,0x00
+        rcall EEPROM_write
+        inc Yl
+        dec tmp
+        brne loopReset
+        rjmp return_interrupt
+
+
+fakeeeprom:
         
         MoveCalibraTo deltaPasoXlambdaHigh
         ldi arg,0x00

@@ -58,16 +58,20 @@
 		sLectura:	.db 	"Lectura",fst
 		Resultados: .db 	high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(lLectura),low(lLectura),high(dispintensidad),low(dispintensidad),high(slLambda),low(slLambda),0,0,0,0
 		Calibra:	.db		high(lLectura),low(lLectura),high(lProbarM),low(lProbarM),high(toLambda),low(toLambda),high(flstd),low(flstd),high(slstd),low(slstd),high(sCalibra<<1),low(sCalibra<<1),high(sProbarM<<1),low(sProbarM<<1)
+		sCalibra: 	.db 	"Calibracion",fst
 		MotorM: 	.db		high(mot_up),low(mot_up),high(mot_down),low(mot_down),high(lProbarM),low(lProbarM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbando<<1),low(sProbando<<1),high(sProbando<<1),low(sProbando<<1)
 		sProbando: 	.db 	"Probando motor",fst
 		ProbarM:	.db		high(lCalibra),low(lCalibra),high(lProbar),low(lProbar),high(comunicateM),low(comunicateM),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbarM<<1),low(sProbarM<<1),high(sProbar<<1),low(sProbar<<1)
 		sProbarM: 	.db 	"Probar motor",fst
 		Probar: 	.db		high(lProbarM),low(lProbarM),high(lVerCal),low(lVerCal),high(ComunicateQ),low(ComunicateQ),high(flstd),low(flstd),high(slstd),low(slstd),high(sProbar<<1),low(sProbar<<1),high(sVerCal<<1),low(sVerCal<<1)
 		sProbar: 	.db 	"Num.Pasos Motor",fst
-		VerCal: 	.db		high(lProbar),low(lProbar),high(lLamp),low(lLamp),high(ComunicateR),low(ComunicateR),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sVerCal<<1),low(sVerCal<<1),0,0
+		VerCal: 	.db		high(lProbar),low(lProbar),high(lResCal),low(lResCal),high(ComunicateV),low(ComunicateV),high(flstd),low(flstd),high(slstd),low(slstd),high(sVerCal<<1),low(sVerCal<<1),high(sResCal<<1),low(sResCal<<1)
 		sVerCal: 	.db 	"Ver calibracion",fst
-		sCalibra: 	.db 	"Calibracion",fst
-		Lampara:	.db		high(lVerCal),low(lVerCal),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sVerCal<<1),low(sVerCal<<1),0,0
+		ResCal: 	.db		high(lVerCal),low(lVerCal),high(lFakeCal),low(lFakeCal),high(ComunicateR),low(ComunicateR),high(flstd),low(flstd),high(slstd),low(slstd),high(sResCal<<1),low(sResCal<<1),high(sFakeCal<<1),low(sFakeCal<<1)
+		sResCal: 	.db 	"Rst.Calibracion",fst
+		FakeCal: 	.db		high(lResCal),low(lResCal),high(lLamp),low(lLamp),high(ComunicateF),low(ComunicateF),high(flstd),low(flstd),high(slLamp),low(slLamp),high(sFakeCal<<1),low(sFakeCal<<1),0,0
+		sFakeCal: 	.db 	"Fake Calib.",fst
+		Lampara:	.db		high(lVerCal),low(lVerCal),high(check_keys),low(check_keys),high(switchLamp),low(switchLamp),high(flend),low(flend),high(slLamp2),low(slLamp2),high(sFakeCal<<1),low(sFakeCal<<1),0,0
 		sLampOn:	.db		"Lamp.*On*- Off ",fst
 		sLampOff:	.db		"Lamp. On -*Off*",fst
 		Lambda:		.db		high(Lambda_Up),low(Lambda_Up),high(Lambda_Down),low(Lambda_Down),high(Lambda_Ret),low(Lambda_Ret),high(flstd),low(flstd),high(slLambda),low(slLambda),high(sLambda<<1),low(sLambda<<1),0,0

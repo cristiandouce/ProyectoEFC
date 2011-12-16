@@ -126,6 +126,16 @@ lVerCal:
 		ldi		Xl,low(VerCal<<1)
 		rjmp	ShowScreen
 
+lResCal:
+		ldi		Xh,high(ResCal<<1)
+		ldi		Xl,low(ResCal<<1)
+		rjmp	ShowScreen
+
+lFakeCal:
+		ldi		Xh,high(FakeCal<<1)
+		ldi		Xl,low(FakeCal<<1)
+		rjmp	ShowScreen
+
 check_keys:
 		;reseteo las flags de las keys
 		rcall delay200ms
@@ -297,7 +307,8 @@ floop:	st 		z+,yl
 		sbiw	Yh:Yl,1
 		brne 	floop
 		ret
-ComunicateR:
+
+ComunicateV:
 		SetLCDClearAtHome
 		rcall 	geteprom
 		putstring sEstado
@@ -340,10 +351,33 @@ ComunicateR:
 		rcall 	delay1s
 		rcall 	delay1s
 		rjmp ShowScreen
+
+ComunicateR:
+		SetLCDClearAtHome
+		rcall 	setEepromReset
+
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+		rcall	LCD_Putstring
+		rcall delay1s
+		rjmp ShowScreen
+
+ComunicateF:
+		SetLCDClearAtHome
+		rcall 	setEepromFake
 		
+		ldi		arg,'>'
+		rcall 	lcd_putc
+		ldi		Zh,high(sDone<<1)
+		ldi		Zl,low(sDone<<1)
+		rcall	LCD_Putstring
+		rcall delay1s
+		rjmp ShowScreen
+
 ComunicateQ:
 		SetLcdClearAtHome 		
-		rcall 	calibraciontrucha;!!!ojo!!
 		rcall 	getmotorcount
 		movw	rBin1H:rBin1L,dtah:dta
 		ldi     Zh,high(buffer)

@@ -99,11 +99,6 @@ SendLambda:
 		SendData r0; paso la parte baja de lambda
 		ret
 
-calibraciontrucha:
-		;*	Mando al slave para que inicie la lectura del sensor
-		SendInstruction 'b'
-		ret
-
 geteprom:
 		sendinstruction 'o'
 		ldi 	delay,13
@@ -113,6 +108,14 @@ loopepr:sendinstruction 'l'
 		st z+,tmp
 		dec delay
 		brne	loopepr
+		ret
+
+SetEepromReset:
+		sendinstruction 'r'
+		ret
+
+SetEepromFake:
+		sendinstruction 'b'
 		ret
 
 PutEepromData:
